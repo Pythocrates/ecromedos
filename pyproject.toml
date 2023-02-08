@@ -1,7 +1,7 @@
 [project]
 name = "ecromedos"
 version = "3.0.1"
-dependencies = ["lxml", "pygments"]
+dependencies = ["lxml", "mistune", "pygments"]
 
 [project.scripts]
 ecromedos = "net.ecromedos.ecromedos:main"

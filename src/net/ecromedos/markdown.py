@@ -8,7 +8,7 @@
 
 import os, re
 from lxml import etree
-import com.lepture.mistune as mistune
+import mistune
 from net.ecromedos.configreader import ECMDSConfigReader
 from net.ecromedos.dtdresolver  import ECMDSDTDResolver
 
