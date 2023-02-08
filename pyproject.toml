@@ -1,0 +1,13 @@
+[project]
+name = "ecromedos"
+version = "3.0.1"
+dependencies = ["lxml", "pygments"]
+
+[project.scripts]
+ecromedos = "net.ecromedos.ecromedos:main"
+
+[tool.setuptools_scm]
+# write_to = "pkg/_version.py"
+
+[build-system]
+requires = ["setuptools>=65"]

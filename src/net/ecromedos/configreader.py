@@ -6,6 +6,7 @@
 # URL:     http://www.ecromedos.net
 #
 
+from importlib.resources import files, as_file
 import os, sys, re
 from net.ecromedos.error import ECMDSConfigError
 
@@ -33,9 +34,8 @@ class ECMDSConfigReader():
         # path to config file
         if "config_file" in options:
             cfile = os.path.normpath(options["config_file"])
-        elif "install_dir" in options:
-            syspath = os.path.normpath(options["install_dir"])
-            cfile = os.path.join(syspath, "etc", "ecmds.conf")
+        else:
+            cfile = str(files("net.ecromedos").joinpath("defaults/ecmds.conf"))
         #end if
 
         if not (cfile and os.path.isfile(cfile)):
@@ -92,9 +92,8 @@ class ECMDSConfigReader():
         # path to config file
         if "plugins_map" in self.config:
             cfile = os.path.normpath(self.config["plugins_map"])
-        elif "install_dir" in self.config:
-            syspath = os.path.normpath(self.config["install_dir"])
-            cfile = os.path.join(syspath, "etc", "plugins.conf")
+        else:
+            cfile = str(files("net.ecromedos").joinpath("defaults/plugins.conf"))
         #end if
 
         if not (cfile and os.path.isfile(cfile)):

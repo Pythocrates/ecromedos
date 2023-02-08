@@ -7,15 +7,11 @@
 # URL:     http://www.ecromedos.net
 #
 
+from importlib.resources import files, as_file
 import os, sys, getopt, tempfile
 
 # make ecromedos relocatable
-ECMDS_INSTALL_DIR = os.path.normpath(
-        os.path.dirname(
-            os.path.realpath(sys.argv[0])
-        ) + os.sep + ".." )
-
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+ECMDS_INSTALL_DIR = str(files("net.ecromedos"))
 
 from net.ecromedos.version import VERSION
 from net.ecromedos.error import ECMDSError, ECMDSPluginError
@@ -135,7 +131,7 @@ def startDoc(doctype):
     sys.stdout.flush()
 #end function
 
-if __name__ == "__main__":
+def main():
     try:
         # SETUP
         try:
