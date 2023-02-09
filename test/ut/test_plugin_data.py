@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import unittest
@@ -34,14 +31,5 @@ class UTTestPluginData(unittest.TestCase):
                 os.unlink(f)
             except:
                 all_files_found = False
-        # end for
 
         self.assertTrue(all_files_found)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

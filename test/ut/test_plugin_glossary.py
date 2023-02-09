@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -57,7 +54,6 @@ class UTTestPluginGlossary(unittest.TestCase):
         for term in defterms:
             defterm_node = etree.fromstring(term)
             plugin.process(defterm_node, "xhtml")
-        # end for
 
         glossary_node = etree.fromstring(
             """<make-glossary
@@ -109,11 +105,3 @@ class UTTestPluginGlossary(unittest.TestCase):
        """
 
         self.assertEqual(result.strip(), expected_result.strip())
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

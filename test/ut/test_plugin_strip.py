@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -32,8 +29,6 @@ class UTTestPluginStrip(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    # end function
-
     def test_stripNestedFormattingNodes(self):
         content = "<root><p> <i> <i> </i> </i> <i> X</i> This is a test. <i>X </i> <i> <i> </i> </i> </p></root>"
         root = etree.fromstring(content)
@@ -49,8 +44,6 @@ class UTTestPluginStrip(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    # end function
-
     def test_stripStopAtHardNodes(self):
         content = "<root><p> <idref/><i> </i> This is a test. <i> </i><counter/></p></root>"
         root = etree.fromstring(content)
@@ -65,11 +58,3 @@ class UTTestPluginStrip(unittest.TestCase):
         result = etree.tostring(tree)
 
         self.assertEqual(result, expected_result)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

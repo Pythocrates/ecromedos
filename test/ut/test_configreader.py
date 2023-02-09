@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import unittest
@@ -23,8 +20,6 @@ class UTTestConfigReader(unittest.TestCase):
             self.assertEqual(e.msg(), "Please specify the location of the config file.")
         else:
             self.assertTrue(False)
-
-    # end function
 
     def test_loadConfigurationAndCheckResult(self):
         expected_config = {
@@ -81,11 +76,3 @@ class UTTestConfigReader(unittest.TestCase):
 
         self.assertEqual(config, expected_config)
         self.assertEqual(pmap, expected_pmap)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -31,11 +28,3 @@ class UTTestPluginText(unittest.TestCase):
         expected_result = b"<root>Here comes text{}{\\string:}{} {[}{]}\\{{}\\}{}\\#{}\\&amp;{}\\_{}\\%{}\\${}\\^{}\\textbackslash{}\\textasciitilde{}{}{\\string-}{}{}{\\string:}{}{}{\\string;}{}{}{\\string!}{}{}{\\string?}{}{}{\\string\"}{}{}{\\string`}{}{}{\\string'}{}{}{\\string=}{}\n</root>"
 
         self.assertEqual(result, expected_result)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

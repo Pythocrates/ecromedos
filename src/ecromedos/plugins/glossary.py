@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import functools
 import locale
@@ -20,9 +17,6 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         self.glossary = []
@@ -30,8 +24,6 @@ class Plugin:
             self.__draft = config["xsl_params"]["global.draft"]
         except KeyError:
             self.__draft = "'no'"
-
-    # end function
 
     def process(self, node, format):
         """Saves a glossary entry or sorts and builds the glossary,
@@ -44,16 +36,11 @@ class Plugin:
             node = self.__saveNode(node)
         elif node.tag == "make-glossary":
             node = self.__makeGlossary(node)
-        # end if
 
         return node
 
-    # end function
-
     def flush(self):
         self.glossary = []
-
-    # end function
 
     # PRIVATE
 
@@ -65,12 +52,9 @@ class Plugin:
             dt_node = node.find("./dt")
             if dt_node is not None:
                 term = "".join([s for s in dt_node.itertext()])
-        # end if
 
         self.glossary.append([term, node])
         return node
-
-    # end function
 
     def __makeGlossary(self, node):
         """Read configuration. Sort items. Build glossary. Build XML."""
@@ -95,8 +79,6 @@ class Plugin:
 
         return glossary
 
-    # end function
-
     def __configuration(self, node):
         """Read node attributes and build a dictionary holding
         configuration information for the collator."""
@@ -117,7 +99,6 @@ class Plugin:
             properties["locale"], properties["locale_variant"] = properties["locale"].split("@", 1)
         if "." in properties["locale"]:
             properties["locale"], properties["locale_encoding"] = properties["locale"].split(".", 1)
-        # end ifs
 
         # parse the alphabet
         alphabet = []
@@ -126,13 +107,9 @@ class Plugin:
                 properties["symbols"] = ch[1:-1].strip()
             else:
                 alphabet.append(ch)
-            # end if
-        # end for
         properties["alphabet"] = alphabet
 
         return properties
-
-    # end function
 
     def __setLocale(self, collate="C", encoding=None, variant=None):
         """Sets the locale to the specified locale, encoding and locale
@@ -152,20 +129,14 @@ class Plugin:
                     break
                 except locale.Error:
                     pass
-            # end for
-        # end for
 
         if not success:
             msg = "Warning: cannot set locale '%s'." % collate
             sys.stderr.write(msg)
 
-    # end function
-
     def __resetLocale(self):
         """Resets LC_COLLATE to its default."""
         locale.resetlocale(locale.LC_COLLATE)
-
-    # end function
 
     def __sortGlossary(self, config):
         """Sort glossary terms."""
@@ -175,7 +146,6 @@ class Plugin:
             newnode = etree.Element("glsection")
             newnode.attrib["name"] = ch
             self.glossary.append([ch, newnode])
-        # end for
 
         # comparison function
         def compare(a, b):
@@ -195,11 +165,7 @@ class Plugin:
             else:
                 return 0
 
-        # end inline
-
         self.glossary.sort(key=functools.cmp_to_key(compare))
-
-    # end function
 
     def __buildGlossary(self, node, config):
         """Build XML DOM structure. self.glossary is a list of tuples
@@ -226,15 +192,8 @@ class Plugin:
                 dd_node = item[1].find("./dd")
                 dl_node.append(dt_node)
                 dl_node.append(dd_node)
-            # end if
-        # end for
 
         node.append(section)
         node.tag = "glossary"
 
         return node
-
-    # end function
-
-
-# end class

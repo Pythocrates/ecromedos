@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import os
 import re
@@ -27,8 +24,6 @@ class ECMLRenderer(mistune.Renderer):
         self.footnotes_map = {}
         self.config = config
 
-    # end if
-
     # BLOCK ELEMENTS
 
     def block_code(self, code, language=None):
@@ -40,8 +35,6 @@ class ECMLRenderer(mistune.Renderer):
             "lang": language,
             "code": mistune.escape(code),
         }
-
-    # end function
 
     def block_quote(self, text):
         return "<blockquote>%s</blockquote>" % text
@@ -65,16 +58,12 @@ class ECMLRenderer(mistune.Renderer):
             if sign <= 0:
                 for i in range(diff + 1):
                     retval += "</section>"
-            # end if
-        # end if
 
         retval += '<section level="%d">' % level
         retval += "<title>%s</title>" % text
 
         self.section_level = level
         return retval
-
-    # end function
 
     def hrule(self):
         return ""
@@ -84,8 +73,6 @@ class ECMLRenderer(mistune.Renderer):
             return "<ol>%s</ol>" % body
         else:
             return "<ul>%s</ul>" % body
-
-    # end function
 
     def list_item(self, text):
         return "<li>%s</li>" % text
@@ -109,8 +96,6 @@ class ECMLRenderer(mistune.Renderer):
             body,
         )
 
-    # end function
-
     def table_row(self, content):
         return '<tr valign="top">%s</tr>' % content
 
@@ -127,16 +112,12 @@ class ECMLRenderer(mistune.Renderer):
 
         return "<td%s>%s</td>" % (attributes, content)
 
-    # end function
-
     # INLINE ELEMENTS
 
     def autolink(self, link, is_email=False):
         link = mistune.escape(link)
         href = "mailto:%s" % link if is_email else link
         return '<link url="%s">%s</link>' % (href, link)
-
-    # end function
 
     def codespan(self, text):
         return "<tt>%s</tt>" % mistune.escape(text)
@@ -170,11 +151,8 @@ class ECMLRenderer(mistune.Renderer):
             """ % (
                 src,
             )
-        # end if
 
         return ecml
-
-    # end function
 
     def linebreak(self):
         return "<br/>"
@@ -189,16 +167,12 @@ class ECMLRenderer(mistune.Renderer):
         self.footnotes_map[key] = text
         return ""
 
-    # end function
-
     def footnotes(self, text):
         return ""
 
     def link(self, link, title, text):
         link = mistune.escape_link(link)
         return '<link url="%s">%s</a>' % (link, text)
-
-    # end function
 
     def strikethrough(self, text):
         return text
@@ -208,9 +182,6 @@ class ECMLRenderer(mistune.Renderer):
 
     def inline_html(self, ecml):
         return ecml
-
-
-# end class
 
 
 class MarkdownConverterError(Exception):
@@ -257,8 +228,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
         }
         self.user_settings = options
 
-    # end function
-
     def convert(self, string):
         # initial conversion happening here
         renderer = ECMLRenderer(self.config)
@@ -275,8 +244,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
             return v_.strip()
 
-        # end inline function
-
         for k, v in self.document_settings.items():
             if not v or isinstance(v, str) and not v.strip():
                 continue
@@ -289,7 +256,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
             else:
                 v = re.sub(r"\s+", " ", v, flags=re.MULTILINE).strip()
                 self.document_settings[k] = inline_markdown(v)
-        # end if
 
         header = self.generate_header(self.document_settings)
 
@@ -313,8 +279,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
         # return pretty-printed result
         return etree.tostring(tree, pretty_print=True, encoding="unicode")
-
-    # end function
 
     def parse_preamble(self, string):
         document_settings = {}
@@ -341,16 +305,12 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
                     document_settings[k] += line
                 else:
                     document_settings[k][-1] += line
-            # end if
-        # end for
 
         self.document_settings.update(document_settings)
         self.document_settings.update(self.user_settings)
         self.validate_settings(self.document_settings)
 
         return string[len(m) :]
-
-    # end function
 
     def generate_header(self, settings):
         header_elements = ["subject", "title", "subtitle", "author", "date", "publisher", "dedication"]
@@ -367,13 +327,8 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
                 element_text = settings.get(element_name, "")
                 if element_text:
                     header += "<%s>%s</%s>\n" % (element_name, element_text, element_name)
-                # end if
-            # end ifs
-        # end for
 
         return "<head>\n%s</head>" % header
-
-    # end function
 
     def validate_settings(self, settings):
         pass
@@ -397,7 +352,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
                 node = self.__fix_figure(node)
             elif node.tag == "img":
                 node = self.__fix_img(node)
-            # end if
 
             if len(node) != 0:
                 node = node[0]
@@ -411,12 +365,8 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
                     break
 
                 node = node.getparent()
-            # end while
-        # end while
 
         return root_node
-
-    # end function
 
     # PRIVATE
 
@@ -427,25 +377,20 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
         if footnote_def == None:
             raise MarkdownConverterError("Unresolved footnote reference '%s'" % footnote_ref)
-        # end if
 
         try:
             footnote = etree.fromstring(footnote_def)
         except etree.XMLSyntaxError as e:
             raise MarkdownConverterError("Footnote '%s' is not a valid XML fragment." % footnote_ref)
-        # end try
 
         if footnote.tag != "p":
             raise MarkdownConverterError("Footnote '%s' is an invalid block element." % footnote_ref)
-        # end if
 
         footnote.tag = "footnote"
         footnote.tail = ref_node.tail
         ref_node.getparent().replace(ref_node, footnote)
 
         return footnote
-
-    # end function
 
     def __fix_section(self, section_node):
         document_type = self.document_settings["document_type"]
@@ -454,15 +399,12 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
             section_names = ["section", "subsection", "subsubsection", "minisection"]
         else:
             section_names = ["chapter", "section", "subsection", "subsubsection", "minisection"]
-        # end if
 
         level = int(section_node.attrib["level"]) - 1
         section_node.tag = section_names[level]
         del section_node.attrib["level"]
 
         return section_node
-
-    # end function
 
     def __fix_table(self, table_node):
         if table_node.xpath("colgroup"):
@@ -504,7 +446,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
             # set the background color of table header
             new_td_element.attrib["color"] = "#bbbbbb"
-        # end for
 
         body_cells = table_node.xpath("tbody/tr/td")
 
@@ -517,15 +458,11 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
         return table_node
 
-    # end function
-
     def __fix_thead(self, thead_node):
         header_row = thead_node.xpath("tr")[0]
         header_row.tag = "th"
         thead_node.getparent().replace(thead_node, header_row)
         return header_row
-
-    # end function
 
     def __fix_tbody(self, tbody_node):
         table_node = tbody_node.getparent()
@@ -537,8 +474,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
         table_node.remove(tbody_node)
 
         return body_rows[0]
-
-    # end function
 
     def __fix_figure(self, figure_node):
         section_elements = {
@@ -567,11 +502,8 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
             img_node = figure_node.xpath("img")[0]
             img_node.attrib["print-width"] = "50%"
             img_node.attrib["screen-width"] = "460px"
-        # end if
 
         return figure_node
-
-    # end function
 
     def __fix_img(self, img_node):
         src = img_node.attrib["src"]
@@ -585,8 +517,3 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
         img_node.attrib["src"] = os.path.normpath(os.path.join(input_dir, src))
 
         return img_node
-
-    # end function
-
-
-# end class

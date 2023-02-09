@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import imp
 import os
@@ -17,8 +14,6 @@ class ECMDSPreprocessor:
     def __init__(self):
         self.plugins = {}
 
-    # end function
-
     def loadPlugins(self):
         """Import everything from the plugin directory."""
 
@@ -28,7 +23,6 @@ class ECMDSPreprocessor:
             msg = "No plugins directory specified. Not loading plugins."
             sys.stderr.write(msg)
             return
-        # end try
 
         def genList():
             filelist = []
@@ -37,18 +31,13 @@ class ECMDSPreprocessor:
                 if os.path.isfile(abspath) and not os.path.islink(abspath):
                     if filename.endswith(".py"):
                         filelist.append(filename[:-3])
-                # end if
-            # end for
             return filelist
-
-        # end inline function
 
         try:
             plugins_list = genList()
         except IOError:
             msg = "IO-error while scanning plugins directory."
             raise ECMDSError(msg)
-        # end try
 
         self.plugins = {}
         for name in plugins_list:
@@ -70,10 +59,6 @@ class ECMDSPreprocessor:
                 msg += str(e) + "\n"
                 sys.stderr.write(msg + "\n")
                 continue
-            # end try
-        # end for
-
-    # end function
 
     def prepareDocument(self, document):
         """Prepare document tree for transformation."""
@@ -88,7 +73,6 @@ class ECMDSPreprocessor:
                 is_final = True
             else:
                 is_final = False
-            # end if
 
             if not is_final and node.text:
                 node.text = self.__processNode(node.text, target_format)
@@ -108,15 +92,11 @@ class ECMDSPreprocessor:
                     break
 
                 node = node.getparent()
-            # end while
-        # end while
 
         # call post-actions
         self.__flushPlugins()
 
         return document
-
-    # end function
 
     # PRIVATE
 
@@ -127,7 +107,6 @@ class ECMDSPreprocessor:
             plist = self.pmap.get("@text", [])
         else:
             plist = self.pmap.get(node.tag, [])
-        # end if
 
         # pass node through plugins
         for pname in plist:
@@ -136,7 +115,6 @@ class ECMDSPreprocessor:
             except KeyError:
                 msg = "Warning: no plugin named '%s' registered." % (pname,)
                 sys.stderr.write(msg + "\n")
-            # end try
             try:
                 node = plugin.process(node, format)
             except ECMDSPluginError:
@@ -144,19 +122,10 @@ class ECMDSPreprocessor:
             except Exception as e:
                 msg = "Plugin '%s' caused an exception: %s" % (pname, str(e))
                 raise ECMDSError(msg)
-            # end try
-        # end for
 
         return node
-
-    # end function
 
     def __flushPlugins(self):
         """Call flush function of all registered plugins."""
         for pname, plugin in self.plugins.items():
             plugin.flush()
-
-    # end function
-
-
-# end class

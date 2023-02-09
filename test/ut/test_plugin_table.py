@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -50,11 +47,6 @@ class UTTestPluginTable(unittest.TestCase):
                     self.assertTrue("colsep" in frame)
                 else:
                     self.assertTrue("colsep" not in frame)
-                # end if
-            # end for
-        # end for
-
-    # end function
 
     def test_setColSepOnCellWithColspan(self):
         content = """
@@ -86,10 +78,6 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            # end if
-        # end for
-
-    # end function
 
     def test_setColSepOnRowWithColspan(self):
         content = """
@@ -121,10 +109,6 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            # end if
-        # end for
-
-    # end function
 
     def test_setColSepOnTable(self):
         content = """
@@ -156,13 +140,3 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            # end if
-        # end for
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

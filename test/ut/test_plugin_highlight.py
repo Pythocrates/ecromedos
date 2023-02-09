@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import unittest
@@ -43,11 +40,3 @@ int main(int argc, char *argv[])
         result = etree.tostring(tree, encoding="utf-8", method="xml")
 
         self.assertEqual(result, expected_result)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

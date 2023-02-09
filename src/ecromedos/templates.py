@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 book = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book SYSTEM "http://www.ecromedos.net/dtd/3.0/ecromedos.dtd">
@@ -50,7 +47,7 @@ book = """<?xml version="1.0" encoding="UTF-8"?>
     <!-- end part:
     </part>
     -->
-    
+
     <appendix>
         <title>First Appendix</title>
         <p>
@@ -107,7 +104,7 @@ report = """<?xml version="1.0" encoding="UTF-8"?>
             First paragraph in first chapter...
         </p>
     </chapter>
-    
+
     <appendix>
         <title>First Appendix</title>
         <p>
@@ -150,7 +147,7 @@ article = """<?xml version="1.0" encoding="UTF-8"?>
             Document summary...
         </p>
     </abstract>
-    
+
     <section>
         <title>Section Title</title>
         <p>

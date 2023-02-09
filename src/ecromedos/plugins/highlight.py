@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 from lxml import etree
 from pygments import highlight
@@ -22,14 +19,9 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         self.__colorscheme = config.get("pygments_default_colorscheme", "default")
-
-    # end function
 
     def process(self, node, format):
         """Prepare @node for target @format."""
@@ -63,9 +55,6 @@ class Plugin:
                 else:
                     # only bgcolor can be overridden
                     pass
-                # end if
-            # end if
-        # end for
 
         # replace original node
         newnode.tail = node.tail
@@ -73,12 +62,8 @@ class Plugin:
 
         return newnode
 
-    # end function
-
     def flush(self):
         pass
-
-    # end function
 
     # PRIVATE
 
@@ -95,7 +80,6 @@ class Plugin:
         except KeyError:
             self.__haveLineNumbers = False
             self.__startline = 1
-        # end try
 
         # increment to add to each line
         try:
@@ -105,7 +89,6 @@ class Plugin:
             raise ECMDSPluginError(msg, "highlight")
         except KeyError:
             self.__lineStepping = 1
-        # end try
 
         # style to use
         try:
@@ -119,7 +102,6 @@ class Plugin:
             raise ECMDSPluginError(msg, "highlight")
         except KeyError:
             self.__style = GithubStyle
-        # end try
 
         # get a lexer for given syntax
         try:
@@ -127,7 +109,6 @@ class Plugin:
         except PygmentsClassNotFound:
             msg = "No lexer class found for '%s'." % options["syntax"]
             raise ECMDSPluginError(msg, "highlight")
-        # end try
 
         # do the actual highlighting
         formatter = ECMLPygmentsFormatter(
@@ -139,8 +120,3 @@ class Plugin:
         )
 
         return highlight(string, lexer, formatter)
-
-    # end function
-
-
-# end class

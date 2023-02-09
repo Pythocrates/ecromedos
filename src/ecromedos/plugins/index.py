@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import functools
 import locale
@@ -20,9 +17,6 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         self.index = {}
@@ -31,8 +25,6 @@ class Plugin:
             self.__draft = config["xsl_params"]["global.draft"]
         except KeyError:
             self.__draft = "'no'"
-
-    # end function
 
     def process(self, node, format):
         """Either saves a glossary entry or sorts and builds the glossary,
@@ -46,17 +38,12 @@ class Plugin:
             node = self.__saveNode(node)
         elif node.tag == "make-index":
             node = self.__makeIndex(node)
-        # end if
 
         return node
-
-    # end function
 
     def flush(self):
         self.index = {}
         self.counter = 0
-
-    # end function
 
     # PRIVATE
 
@@ -79,8 +66,6 @@ class Plugin:
                 subitem = child.text.strip()
             elif child.tag == "subsubitem":
                 subsubitem = child.text.strip()
-            # end if
-        # end for
 
         # create label
         label_id = "idx:item%06d" % self.counter
@@ -99,16 +84,11 @@ class Plugin:
                     index[2].append(label_id)
                     index[3] = sortkey
                     break
-                # end if
 
                 index = index[1].setdefault(entry, [entry, {}, [], None])
-            # end for
-        # end if
 
         self.counter += 1
         return label_node
-
-    # end function
 
     def __makeIndex(self, node):
         """Read configuration. Sort items. Build index. Build XML."""
@@ -129,8 +109,6 @@ class Plugin:
         self.__resetLocale()
 
         return index
-
-    # end function
 
     def __configuration(self, node):
         """Read node attributes and build a dictionary holding
@@ -155,7 +133,6 @@ class Plugin:
             properties["locale"], properties["locale_variant"] = properties["locale"].split("@", 1)
         if "." in properties["locale"]:
             properties["locale"], properties["locale_encoding"] = properties["locale"].split(".", 1)
-        # end ifs
 
         # parse the alphabet
         alphabet = []
@@ -164,13 +141,9 @@ class Plugin:
                 properties["symbols"] = ch[1:-1].strip()
             else:
                 alphabet.append(ch)
-            # end if
-        # end for
         properties["alphabet"] = alphabet
 
         return properties
-
-    # end function
 
     def __setLocale(self, collate="C", encoding=None, variant=None):
         """Sets the locale to the specified locale, encoding and locale
@@ -190,20 +163,14 @@ class Plugin:
                     break
                 except locale.Error:
                     pass
-            # end for
-        # end for
 
         if not success:
             msg = "Warning: cannot set locale '%s'." % collate
             sys.stderr.write(msg)
 
-    # end function
-
     def __resetLocale(self):
         """Resets LC_COLLATE to its default."""
         locale.resetlocale(locale.LC_COLLATE)
-
-    # end function
 
     def __sortIndex(self, index, level="item", config=None):
         """Sort index terms."""
@@ -221,15 +188,12 @@ class Plugin:
             # recursion
             v[1] = self.__sortIndex(v[1], "sub" + level, config)
             itemlist.append(v)
-        # end for
 
         # insert alphabet
         if level == "item":
             for ch in config["alphabet"]:
                 newnode = etree.Element("idxsection", name=ch)
                 itemlist.append(["idxsection", newnode, ch])
-            # end for
-        # end if
 
         # comparison function
         def compare(a, b):
@@ -243,7 +207,6 @@ class Plugin:
                 result = locale.strcoll(x1.lower(), x2.lower())
             else:
                 result = locale.strcoll(a[-1], b[-1])
-            # end if
 
             if result != 0:
                 return result
@@ -256,12 +219,8 @@ class Plugin:
             else:
                 return 0
 
-        # end inline
-
         itemlist.sort(key=functools.cmp_to_key(compare))
         return itemlist
-
-    # end function
 
     def __buildIndexHelper(self, section, index, level, separator):
         """Build index recursively from nested lists structure."""
@@ -297,19 +256,13 @@ class Plugin:
                         item_node[-1].tail = separator
                     else:
                         item_node[-1].tail += separator
-                    # end if
-                # end if
 
                 i += 1
-            # end while
 
             section.append(item_node)
 
             # recursion
             self.__buildIndexHelper(section, item[1], "sub" + level, separator)
-        # end for
-
-    # end function
 
     def __buildIndex(self, node, config):
         """Build XML DOM structure."""
@@ -322,7 +275,6 @@ class Plugin:
             index = self.index[group][1]
         except:
             return node
-        # end try
 
         # sort index
         localestring, encoding = locale.getlocale(locale.LC_COLLATE)
@@ -334,7 +286,6 @@ class Plugin:
                 node.attrib[prop_name] = config[prop_name]
             except KeyError:
                 pass
-        # end for
 
         # start building index...
         section = etree.Element("idxsection")
@@ -375,25 +326,15 @@ class Plugin:
                             item_node[-1].tail = separator
                         else:
                             item_node[-1].tail += separator
-                        # end if
-                    # end if
 
                     i += 1
-                # end while
 
                 section.append(item_node)
 
                 # recursion
                 self.__buildIndexHelper(section, item[1], "subitem", separator)
-            # end if
-        # end for
 
         node.append(section)
         node.tag = "index"
 
         return node
-
-    # end function
-
-
-# end class

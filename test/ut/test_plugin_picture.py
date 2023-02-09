@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -38,9 +35,6 @@ class UTTestPluginPicture(unittest.TestCase):
                 plugin.process(root.find("./img"), "xhtml")
             except ECMDSPluginError as e:
                 self.assertTrue(e.msg().startswith("Could not find bitmap file at location"))
-        # end with
-
-    # end function
 
     def test_targetPDFLatexEPStoPDF(self):
         tree = etree.parse(ECMDS_TEST_DATA_DIR + os.sep + "ecromedos_eps.xml")
@@ -58,11 +52,8 @@ class UTTestPluginPicture(unittest.TestCase):
             plugin = picture.getInstance(config)
             plugin.process(root.find("./img"), "pdflatex")
             plugin.flush()
-        # end with
 
         os.unlink("img000001.pdf")
-
-    # end function
 
     def test_targetLatexIMGtoEPS(self):
         tree = etree.parse(ECMDS_TEST_DATA_DIR + os.sep + "ecromedos_png.xml")
@@ -80,11 +71,8 @@ class UTTestPluginPicture(unittest.TestCase):
             plugin = picture.getInstance(config)
             plugin.process(root.find("./img"), "latex")
             plugin.flush()
-        # end with
 
         os.unlink("img000001.eps")
-
-    # end function
 
     def test_targetXHTMLSetScreenWidth(self):
         tree = etree.parse(ECMDS_TEST_DATA_DIR + os.sep + "ecromedos_png_explicit_width.xml")
@@ -102,11 +90,8 @@ class UTTestPluginPicture(unittest.TestCase):
             plugin = picture.getInstance(config)
             plugin.process(root.find("./img"), "xhtml")
             plugin.flush()
-        # end with
 
         os.unlink("img000001.png")
-
-    # end function
 
     def test_targetXHTMLIdentifyWidth(self):
         tree = etree.parse(ECMDS_TEST_DATA_DIR + os.sep + "ecromedos_png.xml")
@@ -124,11 +109,8 @@ class UTTestPluginPicture(unittest.TestCase):
             plugin = picture.getInstance(config)
             plugin.process(root.find("./img"), "xhtml")
             plugin.flush()
-        # end with
 
         os.unlink("img000001.png")
-
-    # end function
 
     def test_targetXHTMLEPStoIMG(self):
         tree = etree.parse(ECMDS_TEST_DATA_DIR + os.sep + "ecromedos_eps.xml")
@@ -146,14 +128,5 @@ class UTTestPluginPicture(unittest.TestCase):
             plugin = picture.getInstance(config)
             plugin.process(root.find("./img"), "xhtml")
             plugin.flush()
-        # end with
 
         os.unlink("img000001.jpg")
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

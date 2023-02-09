@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -93,7 +90,6 @@ class UTTestPluginIndex(unittest.TestCase):
         for term in idxterms:
             idxterm_root = etree.fromstring(term)
             plugin.process(idxterm_root.find("./idxterm"), "xhtml")
-        # end for
 
         index_node = etree.fromstring(
             """<make-index
@@ -133,11 +129,3 @@ class UTTestPluginIndex(unittest.TestCase):
 </index>
 """
         self.assertEqual(result.strip(), expected_result.strip())
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

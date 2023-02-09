@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 
 def getInstance(config):
@@ -12,14 +9,9 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         pass
-
-    # end function
 
     def process(self, node, format):
         """Strip leading and trailing white-space from node content."""
@@ -46,7 +38,6 @@ class Plugin:
             do_strip = True
         else:
             do_strip = False
-        # end if
 
         if not do_strip:
             return node
@@ -56,12 +47,8 @@ class Plugin:
 
         return node
 
-    # end function
-
     def flush(self):
         pass
-
-    # end function
 
     # PRIVATE
 
@@ -78,7 +65,6 @@ class Plugin:
                 n.text = n.text.lstrip()
                 if n.text:
                     return
-            # end if
 
             if len(n):
                 n = n[0]
@@ -91,7 +77,6 @@ class Plugin:
                     n.tail = n.tail.lstrip()
                     if n.tail:
                         return
-                # end if
 
                 following_sibling = n.getnext()
 
@@ -102,11 +87,6 @@ class Plugin:
                     n = n.getparent()
                     if n == node:
                         return
-                # end if
-            # end while
-        # end while
-
-    # end function
 
     def __rstrip(self, node):
         hard_nodes = ["counter", "ref", "idref", "cite", "entity"]
@@ -118,7 +98,6 @@ class Plugin:
                     return
             else:
                 return
-        # end if
 
         n = node[-1]
 
@@ -127,7 +106,6 @@ class Plugin:
                 n.tail = n.tail.rstrip()
                 if n.tail:
                     return
-            # end if
 
             if n.tag in hard_nodes:
                 return
@@ -141,7 +119,6 @@ class Plugin:
                     n.text = n.text.rstrip()
                     if n.text:
                         return
-                # end if
 
                 previous_sibling = n.getprevious()
 
@@ -152,11 +129,3 @@ class Plugin:
                     n = n.getparent()
                     if n == node:
                         return
-                # end if
-            # end if
-        # end while
-
-    # end function
-
-
-# end class

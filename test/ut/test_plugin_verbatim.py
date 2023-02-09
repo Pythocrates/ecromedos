@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -44,8 +41,6 @@ int main(int argc, char *argv[])
 
         self.assertEqual(result, expected_result)
 
-    # end function
-
     def test_processVerbatimTagLatex(self):
         content = """
 <root>
@@ -72,11 +67,3 @@ int main(int argc, char *argv[])
         expected_result = b'<root>\n    <verbatim>\n\\#{}include &lt;stdlib.h&gt;\n\\#{}include &lt;stdio.h&gt;\n\nint main(int argc, char *argv{[}{]})\n\\{{}\n    printf({}{"}{}Hello World{}{!}{}\n{}{"}{}){}{;}{}\n\\}{}\n    </verbatim>\n</root>'
 
         self.assertEqual(result, expected_result)
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

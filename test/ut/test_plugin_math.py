@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8 -*-
-
 import os
 import sys
 import tempfile
@@ -31,8 +28,6 @@ class UTTestPluginMath(unittest.TestCase):
         expected_result = b"<root><m><copy>Formula Here</copy></m></root>"
         self.assertEqual(result, expected_result)
 
-    # end function
-
     def test_handleMathNodeXHTML(self):
         root = etree.fromstring("<root><m>Formula Here</m></root>")
 
@@ -41,7 +36,6 @@ class UTTestPluginMath(unittest.TestCase):
             plugin = math.getInstance(config)
             plugin.process(root.find("./m"), "xhtml")
             plugin.flush()
-        # end with
 
         tree = etree.ElementTree(element=root)
         result = etree.tostring(tree, encoding="utf-8", method="xml")
@@ -49,11 +43,3 @@ class UTTestPluginMath(unittest.TestCase):
         expected_result = b'<root><copy><img src="m000001.gif" alt="formula" class="math" style="vertical-align: -1px;"/></copy></root>'
         self.assertEqual(result, expected_result)
         os.unlink("m000001.gif")
-
-    # end function
-
-
-# end class
-
-if __name__ == "__main__":
-    unittest.main()

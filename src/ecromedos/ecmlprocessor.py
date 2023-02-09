@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import os
 import sys
@@ -27,8 +24,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         self.loadPlugins()
         self.loadStylesheet()
 
-    # end function
-
     def loadXMLDocument(self, filename):
         """Try to load XML document from @filename."""
 
@@ -49,8 +44,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         # return document tree
         return tree
 
-    # end function
-
     def loadStylesheet(self):
         """Load matching stylesheet for desired output format."""
 
@@ -61,7 +54,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
-        # end try
 
         filename = os.path.join(style_dir, target_format, "ecmds.xsl")
         try:
@@ -69,17 +61,13 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         except ECMDSError as e:
             msg = "Could not load stylesheet:\n %s" % (e.msg(),)
             raise ECMDSError(msg)
-        # end try
 
         try:
             self.stylesheet = etree.XSLT(tree)
         except Exception as e:
             raise ECMDSError(str(e))
-        # end if
 
         return self.stylesheet
-
-    # end function
 
     def validateDocument(self, document):
         """Validate the given document."""
@@ -89,7 +77,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
-        # end try
 
         # load the DTD
         dtd_filename = os.path.join(style_dir, "DTD", "ecromedos.dtd")
@@ -102,8 +89,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
             raise ECMDSError(dtd.error_log.last_error)
 
         return result
-
-    # end function
 
     def applyStylesheet(self, document):
         """Apply stylesheet to document."""
@@ -119,11 +104,8 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         except Exception as e:
             msg = "Error transforming document:\n %s." % (str(e),)
             raise ECMDSError(msg)
-        # end try
 
         return result
-
-    # end function
 
     def process(self, filename, verbose=True):
         """Convert the document stored under filename."""
@@ -135,14 +117,10 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
             sys.stdout.write(" " * (40 - len(msg)))
             sys.stdout.flush()
 
-        # end inline function
-
         def status(status, verbose):
             if not verbose:
                 return
             sys.stdout.write(status + "\n")
-
-        # end inline function
 
         # load document
         message("Reading document...", verbose)
@@ -154,7 +132,6 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
             message("Validating document...", verbose)
             self.validateDocument(document)
             status("VALID", verbose)
-        # end if
 
         # prepare document
         message("Pre-processing document tree...", verbose)
@@ -165,8 +142,3 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         message("Transforming document...", verbose)
         self.applyStylesheet(document)
         status("DONE", verbose)
-
-    # end function
-
-
-# end class

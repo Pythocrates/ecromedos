@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import os
 import re
@@ -22,9 +19,6 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         # set counter
@@ -39,11 +33,9 @@ class Plugin:
         except KeyError:
             msg = "Location of the 'convert' executable not specified."
             raise ECMDSPluginError(msg, "picture")
-        # end try
         if not os.path.isfile(self.convert_bin):
             msg = "Could not find 'convert' executable '%s'." % (self.convert_bin,)
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         # look for identify tool
         try:
@@ -52,11 +44,9 @@ class Plugin:
         except KeyError:
             msg = "Location of the 'identify' executable not specified."
             raise ECMDSPluginError(msg, "picture")
-        # end try
         if not os.path.isfile(self.identify_bin):
             msg = "Could not find 'identify' executable '%s'." % (self.identify_bin,)
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         # temporary directory
         self.tmp_dir = config["tmp_dir"]
@@ -66,9 +56,6 @@ class Plugin:
             self.convert_dpi = config["convert_dpi"]
         except KeyError:
             self.convert_dpi = "100"
-        # end try
-
-    # end function
 
     def process(self, node, format):
         """Prepare @node for target @format."""
@@ -79,19 +66,14 @@ class Plugin:
             self.LaTeX_prepareImg(node, format="pdf")
         else:
             self.XHTML_prepareImg(node)
-        # end if
 
         return node
-
-    # end function
 
     def flush(self):
         # reset counter
         self.counter = 1
         self.imgmap = {}
         self.imgwidth = {}
-
-    # end function
 
     def LaTeX_prepareImg(self, node, format="eps"):
         # get image src path
@@ -110,18 +92,13 @@ class Plugin:
                     self.__eps2pdf(src, dst)
                 else:
                     self.__convertImg(src, dst)
-                # end if
             else:
                 shutil.copyfile(src, dst)
-            # end if
 
             self.imgmap[src] = [dst]
-        # end try
 
         # set src attribute to new file
         node.attrib["src"] = dst
-
-    # end function
 
     def XHTML_prepareImg(self, node):
         # get image src path
@@ -134,7 +111,6 @@ class Plugin:
             width = re.match("[1-9][0-9]*", width).group()
         else:
             width = self.__identifyWidth(src)
-        # end if
 
         try:
             imglist = self.imgmap[src]
@@ -145,8 +121,6 @@ class Plugin:
                 if width == img_width:
                     dst = img
                     break
-                # end if
-            # end for
         except KeyError:
             pass
 
@@ -160,17 +134,13 @@ class Plugin:
             else:
                 dst = "img%06d.jpg" % (self.counter,)
                 self.__convertImg(src, dst, width)
-            # end if
 
             self.imgwidth[dst] = width
             self.imgmap.setdefault(src, []).append(dst)
             self.counter += 1
-        # end if
 
         # set src attribute to new file
         node.attrib["src"] = dst
-
-    # end function
 
     # PRIVATE
 
@@ -182,7 +152,6 @@ class Plugin:
             msg = "Emtpy or missing 'src' attribute in 'img' tag "
             msg += "on line '%d'." % node.sourceline
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         # if src is a relative path, prepend doc's location
         if src and not os.path.isabs(src):
@@ -191,17 +160,13 @@ class Plugin:
 
             baseURL = os.path.dirname(os.path.normpath(tree.docinfo.URL))
             src = os.path.join(baseURL, os.path.normpath(src))
-        # end if
 
         if not os.path.isfile(src):
             msg = "Could not find bitmap file at location '%s' " % (src,)
             msg += "as specified in 'img' tag on line '%d'." % node.sourceline
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         return src
-
-    # end function
 
     def __convertImg(self, src, dst, width=None):
         # build command line
@@ -209,7 +174,6 @@ class Plugin:
             cmd = [self.convert_bin, "-antialias", "-density", self.convert_dpi, "-scale", width + "x"]
         else:
             cmd = [self.convert_bin, "-antialias", "-density", self.convert_dpi]
-        # end if
 
         # remove alpha channel if not supported
         if not dst[-4:] in [".png", ".pdf", ".svg", ".eps"]:
@@ -226,9 +190,6 @@ class Plugin:
         if rval != 0:
             msg = "Could not convert graphics file '%s'." % src
             raise ECMDSPluginError(msg, "picture")
-        # end if
-
-    # end function
 
     def __eps2pdf(self, src, dst):
         # determine extension
@@ -264,8 +225,6 @@ class Plugin:
                     done = True
                 else:
                     outfile.write(line)
-                # end if
-            # end for
 
             self.__convertImg(tmpname, dst)
         except IOError:
@@ -280,9 +239,6 @@ class Plugin:
                 outfile.close()
             except:
                 pass
-        # end try
-
-    # end function
 
     def __identifyWidth(self, src):
         cmd = [self.identify_bin, src]
@@ -293,7 +249,6 @@ class Plugin:
         if result.startswith("identify:"):
             msg = "Could not determine bitmap's dimensions:\n  '%s'." % (result,)
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         result = result.split()
         rexpr = re.compile("[0-9]+x[0-9]+")
@@ -303,17 +258,9 @@ class Plugin:
             if rexpr.match(value):
                 width = value.split("x")[0]
                 break
-            # end if
-        # end for
 
         if not width:
             msg = "Could not determine bitmap's dimensions:\n  '%s'." % (src,)
             raise ECMDSPluginError(msg, "picture")
-        # end if
 
         return width
-
-    # end function
-
-
-# end class

@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import io
 import os
@@ -23,9 +20,6 @@ def getInstance(config):
     return Plugin(config)
 
 
-# end function
-
-
 class Plugin:
     def __init__(self, config):
         # init counter
@@ -38,12 +32,10 @@ class Plugin:
         except KeyError:
             msg = "Location of the 'latex' executable unspecified."
             raise ECMDSPluginError(msg, "math")
-        # end try
 
         if not os.path.isfile(self.latex_bin):
             msg = "Could not find latex executable '%s'." % (self.latex_bin,)
             raise ECMDSPluginError(msg, "math")
-        # end if
 
         # look for conversion tool
         try:
@@ -52,12 +44,10 @@ class Plugin:
         except KeyError:
             msg = "Location of the 'dvipng' executable unspecified."
             raise ECMDSPluginError(msg, "math")
-        # end try
 
         if not os.path.isfile(self.dvipng_bin):
             msg = "Could not find 'dvipng' executable '%s'." % (self.dvipng_bin,)
             raise ECMDSPluginError(msg, "math")
-        # end if
 
         # temporary directory
         self.tmp_dir = config["tmp_dir"]
@@ -67,12 +57,9 @@ class Plugin:
             self.dvipng_dpi = config["dvipng_dpi"]
         except KeyError:
             self.dvipng_dpi = "100"
-        # end try
 
         # output document
         self.out = io.StringIO()
-
-    # end function
 
     def process(self, node, format):
         """Prepare @node for target @format."""
@@ -81,11 +68,8 @@ class Plugin:
             result = self.LaTeX_ProcessMath(node)
         else:
             result = self.XHTML_ProcessMath(node)
-        # end if
 
         return result
-
-    # end function
 
     def flush(self):
         """If target format is XHTML, generate GIFs from formulae."""
@@ -96,13 +80,10 @@ class Plugin:
             self.__LaTeX2Dvi2Gif()
             self.out.close()
             self.out = io.StringIO()
-        # end if
 
         # reset counter
         self.counter = 1
         self.nodelist = []
-
-    # end function
 
     def LaTeX_ProcessMath(self, node):
         """Mark node, to be copied 1:1 to output document."""
@@ -118,8 +99,6 @@ class Plugin:
         math_node.append(node)
 
         return math_node
-
-    # end function
 
     def XHTML_ProcessMath(self, node):
         """Call LaTeX and ImageMagick to produce a GIF."""
@@ -141,7 +120,6 @@ class Plugin:
 \\pagestyle{empty}
 \\begin{document}"""
             )
-        # end if
 
         # save TeX markup
         # formula = etree.tostring(node, method="text", encoding="unicode")
@@ -167,8 +145,6 @@ class Plugin:
 
         return copy_node
 
-    # end function
-
     # PRIVATE
 
     def __LaTeX2Dvi2Gif(self):
@@ -183,7 +159,6 @@ class Plugin:
         except IOError:
             msg = "Error while writing temporary TeX file."
             raise ECMDSPluginError(msg, "math")
-        # end try
 
         # compile LaTeX file
         with open(os.devnull, "wb") as devnull:
@@ -198,9 +173,6 @@ class Plugin:
                 if rval != 0:
                     msg = "Could not compile temporary TeX file."
                     raise ECMDSPluginError(msg, "math")
-                # end if
-            # end if
-        # end with
 
         # determine dvi file name
         dvifile = self.tmp_dir + os.sep + "".join(tmpname.split(os.sep)[-1].split(".")[:-1]) + ".dvi"
@@ -219,8 +191,6 @@ class Plugin:
             if rval != 0:
                 msg = "Could not convert dvi file to GIF images."
                 raise ECMDSPluginError(msg, "math")
-            # end if
-        # end with
 
         # read dvipng's log output
         try:
@@ -229,7 +199,6 @@ class Plugin:
         except IOError:
             msg = "Could not read dvipng's log output from '%s'" % logname
             raise ECMDSPluginError(msg, "math")
-        # end try
 
         # look for [??? depth=???px]
         rexpr = re.compile("\\[[0-9]* depth=[0-9]*\\]")
@@ -241,9 +210,3 @@ class Plugin:
             node = self.nodelist[i]
             node.attrib["style"] = "vertical-align: -" + align + "px;"
             i += 1
-        # end for
-
-    # end function
-
-
-# end class

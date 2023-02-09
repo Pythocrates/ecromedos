@@ -1,11 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
-#
 
 import getopt
 import os
@@ -32,9 +28,6 @@ def printVersion():
 
     print("ecromedos Document Processor, version %s" % VERSION)
     print("Copyright (C) 2005-2016, Tobias Koch <tobias@tobijk.de>                      ")
-
-
-# end function
 
 
 def printUsage():
@@ -64,9 +57,6 @@ def printUsage():
     print(" --novalid             Skip validation of the document.                      ")
 
 
-# end function
-
-
 def parseCmdLine():
     """Parse and extract arguments of command line options."""
 
@@ -94,7 +84,6 @@ def parseCmdLine():
         msg = "Error while parsing command line: %s\n" % e.msg
         msg += "Type 'ecromedos --help' for more information."
         raise ECMDSError(msg)
-    # end try
 
     params = options.setdefault("xsl_params", {})
 
@@ -126,7 +115,6 @@ def parseCmdLine():
                 raise ECMDSError(msg)
             else:
                 v = os.path.abspath(v)
-            # end if
             params["global.stylesheet"] = "document('%s')" % v
         elif o in ["--version", "-v"]:
             printVersion()
@@ -135,13 +123,8 @@ def parseCmdLine():
             msg = "Unrecognized option '%s'.\n" % (o,)
             msg += "Type 'ecromedos --help' for more information."
             raise ECMDSError(msg)
-        # end ifs
-    # end while
 
     return options, args
-
-
-# end function
 
 
 def startDoc(doctype):
@@ -152,13 +135,9 @@ def startDoc(doctype):
         raise ECMDSError(msg)
     else:
         template = document_templates.__dict__[doctype]
-    # end if
 
     sys.stdout.write(template)
     sys.stdout.flush()
-
-
-# end function
 
 
 def main():
@@ -172,11 +151,9 @@ def main():
             if not os.path.isfile(files[0]):
                 msg = "ecromedos: '%s' doesn't exist or is not a file" % files[0]
                 raise ECMDSError(msg)
-            # end ifs
         except ECMDSError as e:
             sys.stderr.write(e.msg() + "\n")
             sys.exit(ECMDS_ERR_INVOCATION)
-        # end try
 
         # TRANSFORMATION
         try:
@@ -189,12 +166,8 @@ def main():
 
                 # DO DOCUMENT TRANSFORMATION
                 ECMLProcessor(options).process(files[0])
-            # end with
         except ECMDSError as e:
             sys.stderr.write(e.msg() + "\n")
             sys.exit(ECMDS_ERR_PROCESSING)
     except KeyboardInterrupt:
         sys.stdout.write("\n -> Caught SIGINT, terminating.\n")
-
-
-# end __main__
