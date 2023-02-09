@@ -8,10 +8,10 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound as PygmentsClassNotFound
+from pygments_style_github import GithubStyle
 
 from ecromedos.error import ECMDSPluginError
 from ecromedos.highlight.formatter import ECMLPygmentsFormatter
-from ecromedos.highlight.styles.github import GithubStyle
 
 
 def getInstance(config):
