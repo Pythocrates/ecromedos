@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.glossary as glossary
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginGlossary(unittest.TestCase):
-
     def test_collectDeftermsAndBuildGlossary(self):
         defterms = [
-"""
+            """
 <defterm>
     <dt>Gabcde</dt>
     <dd>
@@ -26,7 +27,7 @@ class UTTestPluginGlossary(unittest.TestCase):
     </dd>
 </defterm>
 """,
-"""
+            """
 <defterm>
     <dt>Babcde</dt>
     <dd>
@@ -34,7 +35,7 @@ class UTTestPluginGlossary(unittest.TestCase):
     </dd>
 </defterm>
 """,
-"""
+            """
 <defterm>
     <dt>Abcde</dt>
     <dd>
@@ -42,7 +43,7 @@ class UTTestPluginGlossary(unittest.TestCase):
     </dd>
 </defterm>
 """,
-"""
+            """
 <defterm>
     <dt>@__</dt>
     <dd>
@@ -50,17 +51,19 @@ class UTTestPluginGlossary(unittest.TestCase):
     </dd>
 </defterm>
 """,
-]
+        ]
         plugin = glossary.getInstance({})
 
         for term in defterms:
             defterm_node = etree.fromstring(term)
             plugin.process(defterm_node, "xhtml")
-        #end for
+        # end for
 
-        glossary_node = etree.fromstring('''<make-glossary
+        glossary_node = etree.fromstring(
+            """<make-glossary
                 alphabet="[S y m b o l e],A,B,C,G,Z"
-                locale="de_DE.UTF-8"/>''')
+                locale="de_DE.UTF-8"/>"""
+        )
         plugin.process(glossary_node, "xhtml")
 
         tree = etree.ElementTree(element=glossary_node)
@@ -106,9 +109,11 @@ class UTTestPluginGlossary(unittest.TestCase):
        """
 
         self.assertEqual(result.strip(), expected_result.strip())
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

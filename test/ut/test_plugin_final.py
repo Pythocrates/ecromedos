@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, unittest
+import os
+import sys
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.final as final
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginFinal(unittest.TestCase):
-
     def test_markNodeAsFinal(self):
         expected_result = b'<root>\n    <p final="yes">Bla bla bla</p>\n</root>'
 
@@ -26,15 +26,17 @@ class UTTestPluginFinal(unittest.TestCase):
         """
         root = etree.fromstring(code)
         tree = etree.ElementTree(element=root)
-        
+
         plugin = final.getInstance({})
         plugin.process(root.find("./p"), "xhtml")
 
         result = etree.tostring(tree, encoding="utf-8", method="xml")
         self.assertEqual(result, expected_result)
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

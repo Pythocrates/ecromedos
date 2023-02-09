@@ -8,25 +8,32 @@
 
 from lxml import etree
 
+
 def getInstance(config):
     """Returns a plugin instance."""
     return Plugin(config)
-#end function
 
-class Plugin():
 
+# end function
+
+
+class Plugin:
     def __init__(self, config):
         pass
-    #end function
+
+    # end function
 
     def flush(self):
         pass
-    #end function
+
+    # end function
 
     def process(self, node, format):
         """Prepare @node for target @format."""
         node.attrib["final"] = "yes"
         return node
-    #end function
 
-#end class
+    # end function
+
+
+# end class

@@ -6,16 +6,20 @@
 # URL:     http://www.ecromedos.net
 #
 
+
 def getInstance(config):
     """Returns a plugin instance."""
     return Plugin(config)
-#end function
 
-class Plugin():
 
+# end function
+
+
+class Plugin:
     def __init__(self, config):
         pass
-    #end function
+
+    # end function
 
     def process(self, node, format):
         """Strip leading and trailing white-space from node content."""
@@ -33,7 +37,7 @@ class Plugin():
             "dd",
             "equation",
             "td",
-            "li"
+            "li",
         ]
 
         if node.tag in default_nodes:
@@ -42,7 +46,7 @@ class Plugin():
             do_strip = True
         else:
             do_strip = False
-        #end if
+        # end if
 
         if not do_strip:
             return node
@@ -51,22 +55,18 @@ class Plugin():
         self.__rstrip(node)
 
         return node
-    #end function
+
+    # end function
 
     def flush(self):
         pass
-    #end function
+
+    # end function
 
     # PRIVATE
 
     def __lstrip(self, node):
-        hard_nodes = [
-            "counter",
-            "ref",
-            "idref",
-            "cite",
-            "entity"
-        ]
+        hard_nodes = ["counter", "ref", "idref", "cite", "entity"]
 
         n = node
 
@@ -78,7 +78,7 @@ class Plugin():
                 n.text = n.text.lstrip()
                 if n.text:
                     return
-            #end if
+            # end if
 
             if len(n):
                 n = n[0]
@@ -91,7 +91,7 @@ class Plugin():
                     n.tail = n.tail.lstrip()
                     if n.tail:
                         return
-                #end if
+                # end if
 
                 following_sibling = n.getnext()
 
@@ -102,19 +102,14 @@ class Plugin():
                     n = n.getparent()
                     if n == node:
                         return
-                #end if
-            #end while
-        #end while
-    #end function
+                # end if
+            # end while
+        # end while
+
+    # end function
 
     def __rstrip(self, node):
-        hard_nodes = [
-            "counter",
-            "ref",
-            "idref",
-            "cite",
-            "entity"
-        ]
+        hard_nodes = ["counter", "ref", "idref", "cite", "entity"]
 
         if len(node) == 0:
             if node.text:
@@ -123,7 +118,7 @@ class Plugin():
                     return
             else:
                 return
-        #end if
+        # end if
 
         n = node[-1]
 
@@ -132,7 +127,7 @@ class Plugin():
                 n.tail = n.tail.rstrip()
                 if n.tail:
                     return
-            #end if
+            # end if
 
             if n.tag in hard_nodes:
                 return
@@ -146,7 +141,7 @@ class Plugin():
                     n.text = n.text.rstrip()
                     if n.text:
                         return
-                #end if
+                # end if
 
                 previous_sibling = n.getprevious()
 
@@ -157,9 +152,11 @@ class Plugin():
                     n = n.getparent()
                     if n == node:
                         return
-                #end if
-            #end if
-        #end while
-    #end function
+                # end if
+            # end if
+        # end while
 
-#end class
+    # end function
+
+
+# end class

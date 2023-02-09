@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.strip as strip
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginStrip(unittest.TestCase):
-
     def test_stripPlainTextContent(self):
         content = "<root><p>    This is a test.    </p></root>"
         root = etree.fromstring(content)
@@ -26,11 +27,12 @@ class UTTestPluginStrip(unittest.TestCase):
 
         tree = etree.ElementTree(element=root)
 
-        expected_result = b'<root><p>This is a test.</p></root>'
+        expected_result = b"<root><p>This is a test.</p></root>"
         result = etree.tostring(tree)
 
         self.assertEqual(result, expected_result)
-    #end function
+
+    # end function
 
     def test_stripNestedFormattingNodes(self):
         content = "<root><p> <i> <i> </i> </i> <i> X</i> This is a test. <i>X </i> <i> <i> </i> </i> </p></root>"
@@ -42,11 +44,12 @@ class UTTestPluginStrip(unittest.TestCase):
 
         tree = etree.ElementTree(element=root)
 
-        expected_result = b'<root><p><i><i></i></i><i>X</i> This is a test. <i>X</i><i><i></i></i></p></root>'
+        expected_result = b"<root><p><i><i></i></i><i>X</i> This is a test. <i>X</i><i><i></i></i></p></root>"
         result = etree.tostring(tree)
 
         self.assertEqual(result, expected_result)
-    #end function
+
+    # end function
 
     def test_stripStopAtHardNodes(self):
         content = "<root><p> <idref/><i> </i> This is a test. <i> </i><counter/></p></root>"
@@ -58,13 +61,15 @@ class UTTestPluginStrip(unittest.TestCase):
 
         tree = etree.ElementTree(element=root)
 
-        expected_result = b'<root><p><idref/><i> </i> This is a test. <i> </i><counter/></p></root>'
+        expected_result = b"<root><p><idref/><i> </i> This is a test. <i> </i><counter/></p></root>"
         result = etree.tostring(tree)
 
         self.assertEqual(result, expected_result)
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

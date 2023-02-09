@@ -7,31 +7,35 @@
 #
 
 from lxml import etree
-from ecromedos.error import ECMDSPluginError
-from ecromedos.highlight.formatter import ECMLPygmentsFormatter
-from ecromedos.highlight.styles.github import GithubStyle
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound as PygmentsClassNotFound
 
+from ecromedos.error import ECMDSPluginError
+from ecromedos.highlight.formatter import ECMLPygmentsFormatter
+from ecromedos.highlight.styles.github import GithubStyle
+
+
 def getInstance(config):
     """Returns a plugin instance."""
     return Plugin(config)
-#end function
 
-class Plugin():
 
+# end function
+
+
+class Plugin:
     def __init__(self, config):
-        self.__colorscheme = \
-            config.get("pygments_default_colorscheme", "default")
-    #end function
+        self.__colorscheme = config.get("pygments_default_colorscheme", "default")
+
+    # end function
 
     def process(self, node, format):
         """Prepare @node for target @format."""
 
         # does user want highlighting?
-        if not node.attrib.get('syntax'):
+        if not node.attrib.get("syntax"):
             return node
 
         # fetch contents
@@ -59,20 +63,22 @@ class Plugin():
                 else:
                     # only bgcolor can be overridden
                     pass
-                #end if
-            #end if
-        #end for
+                # end if
+            # end if
+        # end for
 
         # replace original node
         newnode.tail = node.tail
         node.getparent().replace(node, newnode)
 
         return newnode
-    #end function
+
+    # end function
 
     def flush(self):
         pass
-    #end function
+
+    # end function
 
     # PRIVATE
 
@@ -89,7 +95,7 @@ class Plugin():
         except KeyError:
             self.__haveLineNumbers = False
             self.__startline = 1
-        #end try
+        # end try
 
         # increment to add to each line
         try:
@@ -99,11 +105,11 @@ class Plugin():
             raise ECMDSPluginError(msg, "highlight")
         except KeyError:
             self.__lineStepping = 1
-        #end try
+        # end try
 
         # style to use
         try:
-            color_scheme = options.get('colorscheme', self.__colorscheme)
+            color_scheme = options.get("colorscheme", self.__colorscheme)
             if color_scheme in ["default", "github"]:
                 self.__style = GithubStyle
             else:
@@ -113,7 +119,7 @@ class Plugin():
             raise ECMDSPluginError(msg, "highlight")
         except KeyError:
             self.__style = GithubStyle
-        #end try
+        # end try
 
         # get a lexer for given syntax
         try:
@@ -121,7 +127,7 @@ class Plugin():
         except PygmentsClassNotFound:
             msg = "No lexer class found for '%s'." % options["syntax"]
             raise ECMDSPluginError(msg, "highlight")
-        #end try
+        # end try
 
         # do the actual highlighting
         formatter = ECMLPygmentsFormatter(
@@ -129,10 +135,12 @@ class Plugin():
             startline=self.__startline,
             line_step=self.__lineStepping,
             style=self.__style,
-            output_format=options["output_format"]
+            output_format=options["output_format"],
         )
 
         return highlight(string, lexer, formatter)
-    #end function
 
-#end class
+    # end function
+
+
+# end class

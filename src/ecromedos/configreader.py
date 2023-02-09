@@ -6,16 +6,20 @@
 # URL:     http://www.ecromedos.net
 #
 
-from importlib.resources import files, as_file
-import os, sys, re
+import os
+import re
+import sys
+from importlib.resources import as_file, files
+
 from ecromedos.error import ECMDSConfigError
 
-class ECMDSConfigReader():
 
+class ECMDSConfigReader:
     def __init__(self):
         self.config = None
         self.pmap = {}
-    #end function
+
+    # end function
 
     def readConfig(self, options):
         """Read configuration files."""
@@ -24,7 +28,8 @@ class ECMDSConfigReader():
         self.readPluginsMap()
 
         return self.config, self.pmap
-    #end function
+
+    # end function
 
     def readConfigFile(self, options={}):
         """Read config file and merge with user supplied options."""
@@ -36,18 +41,15 @@ class ECMDSConfigReader():
             cfile = os.path.normpath(options["config_file"])
         else:
             cfile = str(files("ecromedos").joinpath("defaults/ecmds.conf"))
-        #end if
+        # end if
 
         if not (cfile and os.path.isfile(cfile)):
             msg = "Please specify the location of the config file."
             raise ECMDSConfigError(msg)
-        #end if
+        # end if
 
         # some hard-coded defaults
-        config = {
-            "target_format" : "xhtml",
-            "do_validate"   : True
-        }
+        config = {"target_format": "xhtml", "do_validate": True}
 
         # open file
         try:
@@ -56,22 +58,22 @@ class ECMDSConfigReader():
                 lineno = 1
                 for line in fp:
                     line = line.strip()
-                    if line and not line.startswith('#'):
+                    if line and not line.startswith("#"):
                         key, value = self.__processConfigLine(line, lineno)
                         config[key] = value
-                    #end if
+                    # end if
                     lineno += 1
-                #end for
-            #end with
+                # end for
+            # end with
         except Exception:
             msg = "Error processing config file '%s'." % (cfile,)
             raise ECMDSConfigError(msg)
-        #end try
+        # end try
 
         # merge user supplied parameters
         for key, value in list(options.items()):
             config[key] = value
- 
+
         # expand variables
         self.config = self.__replaceVariables(config)
 
@@ -79,7 +81,8 @@ class ECMDSConfigReader():
         self.__initLibPath()
 
         return self.config
-    #end function
+
+    # end function
 
     def readPluginsMap(self):
         """Read plugins map."""
@@ -94,12 +97,12 @@ class ECMDSConfigReader():
             cfile = os.path.normpath(self.config["plugins_map"])
         else:
             cfile = str(files("ecromedos").joinpath("defaults/plugins.conf"))
-        #end if
+        # end if
 
         if not (cfile and os.path.isfile(cfile)):
             sys.stderr.write("Warning: plugins map not found..\n")
             return False
-        #end if
+        # end if
 
         pmap = {}
 
@@ -112,17 +115,18 @@ class ECMDSConfigReader():
                     if line and not line.startswith("#"):
                         key, value = self.__processPluginsMapLine(line, lineno)
                         pmap[key] = value
-                    #end if
+                    # end if
                     lineno += 1
-                #end for
-            #end with
+                # end for
+            # end with
         except Exception:
             msg = "Error processing plugins map file '%s'." % (pmap,)
             raise ECMDSConfigError(msg)
-        #end try
+        # end try
 
         self.pmap = pmap
-    #end function
+
+    # end function
 
     # PRIVATE
 
@@ -130,14 +134,15 @@ class ECMDSConfigReader():
         """Extract key, value from line."""
 
         try:
-            key, value = [entry.strip() for entry in line.split('=', 1)]
+            key, value = [entry.strip() for entry in line.split("=", 1)]
         except Exception:
             msg = "Formatting error in config file on line %d" % (lineno,)
             raise ECMDSConfigError(msg)
-        #end try
+        # end try
 
         return key, value
-    #end function
+
+    # end function
 
     def __processPluginsMapLine(self, line, lineno):
         """extract node name and plugins list from line."""
@@ -149,16 +154,18 @@ class ECMDSConfigReader():
         except Exception:
             msg = "Formatting error in plugins map on line %d" % (lineno,)
             raise ECMDSConfigError(msg)
-        #end try
+        # end try
 
         return nname, plugins
-    #end function
+
+    # end function
 
     def __replaceVariables(self, config):
         """Replace variables in config file definitions."""
 
         # if there is nothing, do nothing
-        if not config: return config
+        if not config:
+            return config
 
         # create rexpr $param1|param2|...
         expr = "|".join([r"\$" + re.escape(key) for key in list(config.keys())])
@@ -166,7 +173,8 @@ class ECMDSConfigReader():
 
         def sub(match):
             return config[match.group()[1:]]
-        #end inline function
+
+        # end inline function
 
         while True:
             # continue until there are no more substitutions
@@ -177,15 +185,16 @@ class ECMDSConfigReader():
                     config[key] = rexpr.sub(sub, value)
                     if value != config[key]:
                         subst_performed = True
-                #end if
-            #end for
+                # end if
+            # end for
 
             if not subst_performed:
                 break
-        #end while
+        # end while
 
         return config
-    #end function
+
+    # end function
 
     def __normPaths(self, config):
         """Normalize all path names for current platform."""
@@ -193,23 +202,25 @@ class ECMDSConfigReader():
         for key, value in list(config.items()):
             if key.endswith("_bin") or key.endswith("_dir"):
                 config[key] = os.path.normpath(value)
-        #end for
+        # end for
 
         return config
-    #end function
+
+    # end function
 
     def __initLibPath(self):
         """Initialize library path."""
 
         try:
-            lib_dir = self.config['lib_dir']
+            lib_dir = self.config["lib_dir"]
         except KeyError:
             return
 
         if not lib_dir in sys.path:
             sys.path.insert(1, lib_dir)
-        #end if
-    #end function
+        # end if
 
-#end class
+    # end function
 
+
+# end class

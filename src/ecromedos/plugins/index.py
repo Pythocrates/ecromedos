@@ -6,25 +6,33 @@
 # URL:     http://www.ecromedos.net
 #
 
-import sys, locale, functools
+import functools
+import locale
+import sys
+
 import lxml.etree as etree
+
 from ecromedos.error import ECMDSPluginError
+
 
 def getInstance(config):
     """Returns a plugin instance."""
     return Plugin(config)
-#end function
 
-class Plugin():
 
+# end function
+
+
+class Plugin:
     def __init__(self, config):
         self.index = {}
         self.counter = 0
         try:
-            self.__draft = config['xsl_params']['global.draft']
+            self.__draft = config["xsl_params"]["global.draft"]
         except KeyError:
             self.__draft = "'no'"
-    #end function
+
+    # end function
 
     def process(self, node, format):
         """Either saves a glossary entry or sorts and builds the glossary,
@@ -38,15 +46,17 @@ class Plugin():
             node = self.__saveNode(node)
         elif node.tag == "make-index":
             node = self.__makeIndex(node)
-        #end if
+        # end if
 
         return node
-    #end function
+
+    # end function
 
     def flush(self):
         self.index = {}
         self.counter = 0
-    #end function
+
+    # end function
 
     # PRIVATE
 
@@ -55,7 +65,7 @@ class Plugin():
         to the node for later when the index is to be built."""
 
         sortkey = node.attrib.get("sortkey", None)
-        group   = node.attrib.get("group", "default")
+        group = node.attrib.get("group", "default")
 
         item = None
         subitem = None
@@ -69,8 +79,8 @@ class Plugin():
                 subitem = child.text.strip()
             elif child.tag == "subsubitem":
                 subsubitem = child.text.strip()
-            #end if
-        #end for
+            # end if
+        # end for
 
         # create label
         label_id = "idx:item%06d" % self.counter
@@ -89,15 +99,16 @@ class Plugin():
                     index[2].append(label_id)
                     index[3] = sortkey
                     break
-                #end if
+                # end if
 
                 index = index[1].setdefault(entry, [entry, {}, [], None])
-            #end for
-        #end if
+            # end for
+        # end if
 
         self.counter += 1
         return label_node
-    #end function
+
+    # end function
 
     def __makeIndex(self, node):
         """Read configuration. Sort items. Build index. Build XML."""
@@ -109,8 +120,7 @@ class Plugin():
         config = self.__configuration(node)
 
         # set locale
-        self.__setLocale(config['locale'], config['locale_encoding'],
-                config['locale_variant'])
+        self.__setLocale(config["locale"], config["locale_encoding"], config["locale_variant"])
 
         # build DOM structures
         index = self.__buildIndex(node, config)
@@ -119,7 +129,8 @@ class Plugin():
         self.__resetLocale()
 
         return index
-    #end function
+
+    # end function
 
     def __configuration(self, node):
         """Read node attributes and build a dictionary holding
@@ -133,34 +144,33 @@ class Plugin():
             "locale": "C",
             "locale_encoding": None,
             "locale_variant": None,
-            "alphabet": "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z"
+            "alphabet": "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z",
         }
 
         # read element attributes
         properties.update(dict(node.items()))
 
         # split locale into locale/encoding/variant
-        if '@' in properties['locale']:
-            properties['locale'], properties['locale_variant'] = \
-                properties['locale'].split('@', 1)
-        if '.' in properties['locale']:
-            properties['locale'], properties['locale_encoding'] = \
-                properties['locale'].split('.', 1)
-        #end ifs
+        if "@" in properties["locale"]:
+            properties["locale"], properties["locale_variant"] = properties["locale"].split("@", 1)
+        if "." in properties["locale"]:
+            properties["locale"], properties["locale_encoding"] = properties["locale"].split(".", 1)
+        # end ifs
 
         # parse the alphabet
         alphabet = []
-        for ch in [x.strip() for x in properties['alphabet'].split(",")]:
-            if ch[0] == '[' and ch[-1] == ']':
-                properties['symbols'] = ch[1:-1].strip()
+        for ch in [x.strip() for x in properties["alphabet"].split(",")]:
+            if ch[0] == "[" and ch[-1] == "]":
+                properties["symbols"] = ch[1:-1].strip()
             else:
                 alphabet.append(ch)
-            #end if
-        #end for
-        properties['alphabet'] = alphabet
+            # end if
+        # end for
+        properties["alphabet"] = alphabet
 
         return properties
-    #end function
+
+    # end function
 
     def __setLocale(self, collate="C", encoding=None, variant=None):
         """Sets the locale to the specified locale, encoding and locale
@@ -172,26 +182,28 @@ class Plugin():
             if success:
                 break
             for v in [variant, ""]:
-                localestring = '.'.join([x for x in [collate,      e] if x])
-                localestring = '@'.join([x for x in [localestring, v] if x])
+                localestring = ".".join([x for x in [collate, e] if x])
+                localestring = "@".join([x for x in [localestring, v] if x])
                 try:
                     locale.setlocale(locale.LC_COLLATE, localestring)
                     success = True
                     break
                 except locale.Error:
                     pass
-            #end for
-        #end for
+            # end for
+        # end for
 
         if not success:
             msg = "Warning: cannot set locale '%s'." % collate
             sys.stderr.write(msg)
-    #end function
+
+    # end function
 
     def __resetLocale(self):
         """Resets LC_COLLATE to its default."""
         locale.resetlocale(locale.LC_COLLATE)
-    #end function
+
+    # end function
 
     def __sortIndex(self, index, level="item", config=None):
         """Sort index terms."""
@@ -207,20 +219,20 @@ class Plugin():
             if not v[-1]:
                 v[-1] = v[0]
             # recursion
-            v[1] = self.__sortIndex(v[1], "sub"+level, config)
+            v[1] = self.__sortIndex(v[1], "sub" + level, config)
             itemlist.append(v)
-        #end for
+        # end for
 
         # insert alphabet
         if level == "item":
-            for ch in config['alphabet']:
+            for ch in config["alphabet"]:
                 newnode = etree.Element("idxsection", name=ch)
                 itemlist.append(["idxsection", newnode, ch])
-            #end for
-        #end if
+            # end for
+        # end if
 
         # comparison function
-        def compare(a,b):
+        def compare(a, b):
             x1 = a[-1]
             x2 = b[-1]
 
@@ -231,12 +243,11 @@ class Plugin():
                 result = locale.strcoll(x1.lower(), x2.lower())
             else:
                 result = locale.strcoll(a[-1], b[-1])
-            #end if
+            # end if
 
             if result != 0:
                 return result
-            elif isinstance(y1, etree._Element) and \
-                    isinstance(y2, etree._Element):
+            elif isinstance(y1, etree._Element) and isinstance(y2, etree._Element):
                 return 0
             elif isinstance(y1, etree._Element):
                 return -1
@@ -244,11 +255,13 @@ class Plugin():
                 return +1
             else:
                 return 0
-        #end inline
+
+        # end inline
 
         itemlist.sort(key=functools.cmp_to_key(compare))
         return itemlist
-    #end function
+
+    # end function
 
     def __buildIndexHelper(self, section, index, level, separator):
         """Build index recursively from nested lists structure."""
@@ -284,18 +297,19 @@ class Plugin():
                         item_node[-1].tail = separator
                     else:
                         item_node[-1].tail += separator
-                    #end if
-                #end if
+                    # end if
+                # end if
 
                 i += 1
-            #end while
+            # end while
 
             section.append(item_node)
 
             # recursion
-            self.__buildIndexHelper(section, item[1], "sub"+level, separator)
-        #end for
-    #end function
+            self.__buildIndexHelper(section, item[1], "sub" + level, separator)
+        # end for
+
+    # end function
 
     def __buildIndex(self, node, config):
         """Build XML DOM structure."""
@@ -308,7 +322,7 @@ class Plugin():
             index = self.index[group][1]
         except:
             return node
-        #end try
+        # end try
 
         # sort index
         localestring, encoding = locale.getlocale(locale.LC_COLLATE)
@@ -318,14 +332,16 @@ class Plugin():
         for prop_name in ["columns", "title", "tocentry"]:
             try:
                 node.attrib[prop_name] = config[prop_name]
-            except KeyError: pass
-        #end for        
+            except KeyError:
+                pass
+        # end for
 
         # start building index...
         section = etree.Element("idxsection")
         try:
-            section.attrib["name"] = config['symbols']
-        except KeyError: pass
+            section.attrib["name"] = config["symbols"]
+        except KeyError:
+            pass
 
         separator = config["separator"]
 
@@ -359,23 +375,25 @@ class Plugin():
                             item_node[-1].tail = separator
                         else:
                             item_node[-1].tail += separator
-                        #end if
-                    #end if
+                        # end if
+                    # end if
 
                     i += 1
-                #end while
+                # end while
 
                 section.append(item_node)
 
                 # recursion
                 self.__buildIndexHelper(section, item[1], "subitem", separator)
-            #end if
-        #end for
+            # end if
+        # end for
 
         node.append(section)
         node.tag = "index"
 
         return node
-    #end function
 
-#end class
+    # end function
+
+
+# end class

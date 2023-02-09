@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.table as table
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginTable(unittest.TestCase):
-
     def test_setColSepOnColSpec(self):
         content = """
 <table frame="top,bottom">
@@ -49,10 +50,11 @@ class UTTestPluginTable(unittest.TestCase):
                     self.assertTrue("colsep" in frame)
                 else:
                     self.assertTrue("colsep" not in frame)
-                #end if
-            #end for
-        #end for
-    #end function
+                # end if
+            # end for
+        # end for
+
+    # end function
 
     def test_setColSepOnCellWithColspan(self):
         content = """
@@ -84,9 +86,10 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            #end if
-        #end for
-    #end function
+            # end if
+        # end for
+
+    # end function
 
     def test_setColSepOnRowWithColspan(self):
         content = """
@@ -118,9 +121,10 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            #end if
-        #end for
-    #end function
+            # end if
+        # end for
+
+    # end function
 
     def test_setColSepOnTable(self):
         content = """
@@ -152,11 +156,13 @@ class UTTestPluginTable(unittest.TestCase):
                 self.assertTrue("colsep" in frame)
             else:
                 self.assertTrue("colsep" not in frame)
-            #end if
-        #end for
-    #end function
+            # end if
+        # end for
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

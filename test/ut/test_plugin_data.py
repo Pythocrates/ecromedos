@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, unittest
+import os
+import sys
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.data as data
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginData(unittest.TestCase):
-
     def test_markNodeAsFinal(self):
         filelist = ["next.gif", "prev.gif", "up.gif"]
 
@@ -34,12 +34,14 @@ class UTTestPluginData(unittest.TestCase):
                 os.unlink(f)
             except:
                 all_files_found = False
-        #end for
+        # end for
 
         self.assertTrue(all_files_found)
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

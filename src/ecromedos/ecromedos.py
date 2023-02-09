@@ -7,28 +7,35 @@
 # URL:     http://www.ecromedos.net
 #
 
-from importlib.resources import files, as_file
-import os, sys, getopt, tempfile
+import getopt
+import os
+import sys
+import tempfile
+from importlib.resources import as_file, files
 
 # make ecromedos relocatable
 ECMDS_INSTALL_DIR = str(files("ecromedos"))
 
-from ecromedos.version import VERSION
-from ecromedos.error import ECMDSError, ECMDSPluginError
-from ecromedos.ecmlprocessor import ECMLProcessor
 import ecromedos.templates as document_templates
+from ecromedos.ecmlprocessor import ECMLProcessor
+from ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos.version import VERSION
 
 # exit values
 ECMDS_ERR_INVOCATION = 1
 ECMDS_ERR_PROCESSING = 2
-ECMDS_ERR_UNKNOWN    = 3
+ECMDS_ERR_UNKNOWN = 3
+
 
 def printVersion():
     """Display version information."""
 
-    print("ecromedos Document Processor, version %s" % VERSION                           )
+    print("ecromedos Document Processor, version %s" % VERSION)
     print("Copyright (C) 2005-2016, Tobias Koch <tobias@tobijk.de>                      ")
-#end function
+
+
+# end function
+
 
 def printUsage():
     """Display usage information."""
@@ -46,7 +53,7 @@ def printUsage():
     print("                       (xhtml, latex, pdflatex or xelatex).                  ")
     print(" --new, -n <doctype>   Start a new document of given doctype                 ")
     print("                       (article, book or report).                            ")
-    print(" --style, -s <file>    Use an alternative style definition file.             ") 
+    print(" --style, -s <file>    Use an alternative style definition file.             ")
     print(" --version, -v         Print version information and exit.                   ")
     print("                                                                             ")
     print(" --draft               Don't generate glossary or keyword indexes, which can ")
@@ -55,7 +62,10 @@ def printUsage():
     print("                       overful horizontal boxes.                             ")
     print(" --nohyperref          Disable active links in PDF output.                   ")
     print(" --novalid             Skip validation of the document.                      ")
-#end function
+
+
+# end function
+
 
 def parseCmdLine():
     """Parse and extract arguments of command line options."""
@@ -63,14 +73,28 @@ def parseCmdLine():
     options = {}
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hvn:f:s:b:c:",
-            ["help", "basedir=", "config=", "format=", "new=", "style=",
-                "draft", "finedtp", "nohyperref", "novalid", "version"])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "hvn:f:s:b:c:",
+            [
+                "help",
+                "basedir=",
+                "config=",
+                "format=",
+                "new=",
+                "style=",
+                "draft",
+                "finedtp",
+                "nohyperref",
+                "novalid",
+                "version",
+            ],
+        )
     except getopt.GetoptError as e:
-        msg  = "Error while parsing command line: %s\n" % e.msg
+        msg = "Error while parsing command line: %s\n" % e.msg
         msg += "Type 'ecromedos --help' for more information."
         raise ECMDSError(msg)
-    #end try
+    # end try
 
     params = options.setdefault("xsl_params", {})
 
@@ -79,7 +103,7 @@ def parseCmdLine():
             params["global.draft"] = "'yes'"
         elif o == "--finedtp":
             params["global.lazydtp"] = "'no'"
-        elif o in [ "--help", "-h" ]:
+        elif o in ["--help", "-h"]:
             printVersion()
             printUsage()
             sys.exit(0)
@@ -102,7 +126,7 @@ def parseCmdLine():
                 raise ECMDSError(msg)
             else:
                 v = os.path.abspath(v)
-            #end if
+            # end if
             params["global.stylesheet"] = "document('%s')" % v
         elif o in ["--version", "-v"]:
             printVersion()
@@ -111,11 +135,14 @@ def parseCmdLine():
             msg = "Unrecognized option '%s'.\n" % (o,)
             msg += "Type 'ecromedos --help' for more information."
             raise ECMDSError(msg)
-        #end ifs
-    #end while
-    
+        # end ifs
+    # end while
+
     return options, args
-#end function
+
+
+# end function
+
 
 def startDoc(doctype):
     """Outputs a template for a new document of "doctype" to stdout."""
@@ -125,11 +152,14 @@ def startDoc(doctype):
         raise ECMDSError(msg)
     else:
         template = document_templates.__dict__[doctype]
-    #end if
+    # end if
 
     sys.stdout.write(template)
     sys.stdout.flush()
-#end function
+
+
+# end function
+
 
 def main():
     try:
@@ -140,14 +170,13 @@ def main():
                 msg = "ecromedos: no source file specified"
                 raise ECMDSError(msg)
             if not os.path.isfile(files[0]):
-                msg = "ecromedos: '%s' doesn't exist or is not a file"\
-                    % files[0]
+                msg = "ecromedos: '%s' doesn't exist or is not a file" % files[0]
                 raise ECMDSError(msg)
-            #end ifs
+            # end ifs
         except ECMDSError as e:
             sys.stderr.write(e.msg() + "\n")
             sys.exit(ECMDS_ERR_INVOCATION)
-        #end try
+        # end try
 
         # TRANSFORMATION
         try:
@@ -160,10 +189,12 @@ def main():
 
                 # DO DOCUMENT TRANSFORMATION
                 ECMLProcessor(options).process(files[0])
-            #end with
+            # end with
         except ECMDSError as e:
             sys.stderr.write(e.msg() + "\n")
             sys.exit(ECMDS_ERR_PROCESSING)
     except KeyboardInterrupt:
         sys.stdout.write("\n -> Caught SIGINT, terminating.\n")
-#end __main__
+
+
+# end __main__

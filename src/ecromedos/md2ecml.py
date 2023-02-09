@@ -7,15 +7,14 @@
 # URL:     http://www.ecromedos.net
 #
 
-import os, sys, getopt
+import getopt
+import os
+import sys
 
 # make ecromedos relocatable
-MD2ECML_INSTALL_DIR = os.path.normpath(
-        os.path.dirname(
-            os.path.realpath(sys.argv[0])
-        ) + os.sep + ".." )
+MD2ECML_INSTALL_DIR = os.path.normpath(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + "..")
 
-sys.path.insert(1, MD2ECML_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, MD2ECML_INSTALL_DIR + os.sep + "lib")
 
 from ecromedos.markdown import MarkdownConverter, MarkdownConverterError
 from ecromedos.version import VERSION
@@ -23,14 +22,18 @@ from ecromedos.version import VERSION
 # exit values
 MD2ECML_ERR_INVOCATION = 1
 MD2ECML_ERR_PROCESSING = 2
-MD2ECML_ERR_UNKNOWN    = 3
+MD2ECML_ERR_UNKNOWN = 3
+
 
 def printVersion():
     """Display version information."""
 
-    print("Markdown to ECML converter, version %s" % VERSION                              )
+    print("Markdown to ECML converter, version %s" % VERSION)
     print("Copyright (C) 2016, Tobias Koch <tobias@tobijk.de>                            ")
-#end function
+
+
+# end function
+
 
 def printUsage():
     """Print usage information."""
@@ -55,7 +58,10 @@ def printUsage():
     print(" --have-lof            Enable list of figures in the table of contents.       ")
     print(" --have-lot            Enable list of tables in the table of contents.        ")
     print(" --have-lol            Enable list of listings in the table of contents.      ")
-#end function
+
+
+# end function
+
 
 def parseCmdLine():
     """Parse and extract arguments of command line options."""
@@ -63,19 +69,33 @@ def parseCmdLine():
     options = {}
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hv",
-            ["help", "version", "doctype=", "bcor=", "page-div=", "lang=",
-                "papersize=", "parskip=", "secnumdepth=", "secsplitdepth=",
-                "have-lof", "have-lot", "have-lol"]
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "hv",
+            [
+                "help",
+                "version",
+                "doctype=",
+                "bcor=",
+                "page-div=",
+                "lang=",
+                "papersize=",
+                "parskip=",
+                "secnumdepth=",
+                "secsplitdepth=",
+                "have-lof",
+                "have-lot",
+                "have-lol",
+            ],
         )
     except getopt.GetoptError as e:
-        msg  = "Error while parsing command line: %s\n" % e.msg
+        msg = "Error while parsing command line: %s\n" % e.msg
         msg += "Type 'md2ecml --help' for more information."
         raise MarkdownConverterError(msg)
-    #end try
+    # end try
 
     for o, v in opts:
-        if o in [ "--help", "-h" ]:
+        if o in ["--help", "-h"]:
             printVersion()
             printUsage()
             sys.exit(0)
@@ -97,22 +117,22 @@ def parseCmdLine():
             for i in [a, b, c, d]:
                 for j in range(7):
                     valid_paper_sizes.append(i + str(j) + paper)
-                #end for
-            #end for
+                # end for
+            # end for
             if not v in valid_paper_sizes:
                 msg = "Invalid paper size '%s'" % v
                 raise MarkdownConverterError(msg)
-            #end if
+            # end if
             options["papersize"] = v
         elif o == "parskip":
             if not v in ["half", "full", "off"]:
                 msg = "Invalid parskip '%s'" % v
                 raise MarkdownConverterError(msg)
-            #end if
+            # end if
             options["parskip"] = v
         elif o == "secnumdepth":
             try:
-                if not int(v) in list(range(0,6)):
+                if not int(v) in list(range(0, 6)):
                     raise ValueError
             except ValueError:
                 msg = "Invalid value '%s' for secnumdepth." % v
@@ -120,12 +140,12 @@ def parseCmdLine():
             options["secnumdepth"] = v
         elif o == "secsplitdepth":
             try:
-                if not int(v) in list(range(0,6)):
+                if not int(v) in list(range(0, 6)):
                     raise ValueError
             except ValueError:
                 msg = "Invalid value '%s' for secsplitdepth." % v
                 raise MarkdownConverterError(msg)
-            #end try
+            # end try
             options["secsplitdepth"] = v
         elif o == "have-lof":
             options["have_lof"] = "yes"
@@ -137,11 +157,13 @@ def parseCmdLine():
             msg = "Unrecognized option '%s'.\n" % (o,)
             msg += "Type 'ecromedos --help' for more information."
             raise MarkdownConverterError(msg)
-        #end ifs
-    #end while
+        # end ifs
+    # end while
 
     return options, args
-#end function
+
+
+# end function
 
 if __name__ == "__main__":
     try:
@@ -152,14 +174,13 @@ if __name__ == "__main__":
                 msg = "md2ecml: no source file specified"
                 raise MarkdownConverterError(msg)
             if not os.path.isfile(files[0]):
-                msg = "md2ecml: '%s' does not exist or is not a file "\
-                    % files[0]
+                msg = "md2ecml: '%s' does not exist or is not a file " % files[0]
                 raise MarkdownConverterError(msg)
-            #end ifs
+            # end ifs
         except MarkdownConverterError as e:
             sys.stderr.write(str(e) + "\n")
             sys.exit(MD2ECML_ERR_INVOCATION)
-        #end try
+        # end try
 
         # READ FILE
         try:
@@ -168,7 +189,7 @@ if __name__ == "__main__":
         except Exception as e:
             sys.stderr.write("Error reading input file: %s\n" % str(e))
             sys.exit(MD2ECML_ERR_PROCESSING)
-        #end try
+        # end try
 
         # TRANSFORMATION
         try:
@@ -183,4 +204,4 @@ if __name__ == "__main__":
             sys.exit(MD2ECML_ERR_PROCESSING)
     except KeyboardInterrupt:
         sys.stdout.write("\n -> Caught SIGINT, terminating.\n")
-#end __main__
+# end __main__

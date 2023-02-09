@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.text as text
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginText(unittest.TestCase):
-
     def test_escapeLatexSpecialChars(self):
         content = "<root>Here comes text: []{}#&amp;_%$^\\~-:;!?\"`'=\n</root>"
         root = etree.fromstring(content)
@@ -27,12 +28,14 @@ class UTTestPluginText(unittest.TestCase):
         tree = etree.ElementTree(element=root)
         result = etree.tostring(tree)
 
-        expected_result = b'<root>Here comes text{}{\\string:}{} {[}{]}\\{{}\\}{}\\#{}\\&amp;{}\\_{}\\%{}\\${}\\^{}\\textbackslash{}\\textasciitilde{}{}{\\string-}{}{}{\\string:}{}{}{\\string;}{}{}{\\string!}{}{}{\\string?}{}{}{\\string"}{}{}{\\string`}{}{}{\\string\'}{}{}{\\string=}{}\n</root>'
+        expected_result = b"<root>Here comes text{}{\\string:}{} {[}{]}\\{{}\\}{}\\#{}\\&amp;{}\\_{}\\%{}\\${}\\^{}\\textbackslash{}\\textasciitilde{}{}{\\string-}{}{}{\\string:}{}{}{\\string;}{}{}{\\string!}{}{}{\\string?}{}{}{\\string\"}{}{}{\\string`}{}{}{\\string'}{}{}{\\string=}{}\n</root>"
 
         self.assertEqual(result, expected_result)
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.index as index
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginIndex(unittest.TestCase):
-
     def test_collectIdxtermsAndBuildIndex(self):
         idxterms = [
-"""
+            """
 <root>
 <idxterm>
     <item>Z Item</item>
@@ -26,7 +27,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>A Item</item>
@@ -35,7 +36,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>AA Item</item>
@@ -44,7 +45,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>X Item</item>
@@ -53,7 +54,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>Z Item</item>
@@ -61,7 +62,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>A Item</item>
@@ -70,7 +71,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>Y Item</item>
@@ -78,7 +79,7 @@ class UTTestPluginIndex(unittest.TestCase):
 </idxterm>
 </root>
 """,
-"""
+            """
 <root>
 <idxterm>
     <item>Z Item</item>
@@ -92,11 +93,13 @@ class UTTestPluginIndex(unittest.TestCase):
         for term in idxterms:
             idxterm_root = etree.fromstring(term)
             plugin.process(idxterm_root.find("./idxterm"), "xhtml")
-        #end for
+        # end for
 
-        index_node = etree.fromstring('''<make-index
+        index_node = etree.fromstring(
+            """<make-index
                 alphabet="[S y m b o l e],A,B,C,G,Z"
-                locale="de_DE.UTF-8"/>''')
+                locale="de_DE.UTF-8"/>"""
+        )
         plugin.process(index_node, "xhtml")
 
         tree = etree.ElementTree(element=index_node)
@@ -130,9 +133,11 @@ class UTTestPluginIndex(unittest.TestCase):
 </index>
 """
         self.assertEqual(result.strip(), expected_result.strip())
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()

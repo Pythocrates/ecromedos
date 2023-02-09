@@ -7,18 +7,19 @@
 #
 
 import os
+
 import lxml.etree as etree
 
-class ECMDSDTDResolver(etree.Resolver):
 
+class ECMDSDTDResolver(etree.Resolver):
     def resolve(self, url, system_id, context):
 
         try:
-            style_dir = self.config['style_dir']
+            style_dir = self.config["style_dir"]
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
-        #end try
+        # end try
 
         for name in ["book", "article", "report", "ecromedos"]:
             for version in ["2.0", "3.0"]:
@@ -27,12 +28,13 @@ class ECMDSDTDResolver(etree.Resolver):
                 if catalog_url == url:
                     filename = os.path.join(style_dir, "DTD", "ecromedos.dtd")
                     return self.resolve_filename(filename, context)
-                #end if
-            #end for
-        #end for
+                # end if
+            # end for
+        # end for
 
         return None
-    #end function
 
-#end class
+    # end function
 
+
+# end class

@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
-import os, sys, tempfile, unittest
+import os
+import sys
+import tempfile
+import unittest
+
 import lxml.etree as etree
 
-ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])),
-    "..", ".."
-))
+ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
-sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
+sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
 
-from ecromedos.error import ECMDSPluginError
 import ecromedos.plugins.verbatim as verbatim
+from ecromedos.error import ECMDSPluginError
+
 
 class UTTestPluginText(unittest.TestCase):
-
     def test_processVerbatimTagXHTML(self):
         content = """
 <root>
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
         root = etree.fromstring(content)
 
         plugin = verbatim.getInstance({})
-        plugin.process(root.find('./verbatim'), "xhtml")
+        plugin.process(root.find("./verbatim"), "xhtml")
         plugin.flush()
 
         tree = etree.ElementTree(element=root)
@@ -42,7 +43,8 @@ int main(int argc, char *argv[])
         expected_result = b'<root>\n    <verbatim>\n#include &lt;stdlib.h&gt;\n#include &lt;stdio.h&gt;\n\nint main(int argc, char *argv[])\n{\n    printf("Hello World!\n");\n}\n    </verbatim>\n</root>'
 
         self.assertEqual(result, expected_result)
-    #end function
+
+    # end function
 
     def test_processVerbatimTagLatex(self):
         content = """
@@ -61,7 +63,7 @@ int main(int argc, char *argv[])
         root = etree.fromstring(content)
 
         plugin = verbatim.getInstance({})
-        plugin.process(root.find('./verbatim'), "latex")
+        plugin.process(root.find("./verbatim"), "latex")
         plugin.flush()
 
         tree = etree.ElementTree(element=root)
@@ -70,9 +72,11 @@ int main(int argc, char *argv[])
         expected_result = b'<root>\n    <verbatim>\n\\#{}include &lt;stdlib.h&gt;\n\\#{}include &lt;stdio.h&gt;\n\nint main(int argc, char *argv{[}{]})\n\\{{}\n    printf({}{"}{}Hello World{}{!}{}\n{}{"}{}){}{;}{}\n\\}{}\n    </verbatim>\n</root>'
 
         self.assertEqual(result, expected_result)
-    #end function
 
-#end class
+    # end function
+
+
+# end class
 
 if __name__ == "__main__":
     unittest.main()
