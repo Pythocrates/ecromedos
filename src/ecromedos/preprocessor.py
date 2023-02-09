@@ -7,7 +7,7 @@
 #
 
 import os, sys, imp
-from net.ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos.error import ECMDSError, ECMDSPluginError
 
 class ECMDSPreprocessor():
 

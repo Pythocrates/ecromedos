@@ -7,9 +7,9 @@
 #
 
 from lxml import etree
-from net.ecromedos.error import ECMDSPluginError
-from net.ecromedos.highlight.formatter import ECMLPygmentsFormatter
-from net.ecromedos.highlight.styles.github import GithubStyle
+from ecromedos.error import ECMDSPluginError
+from ecromedos.highlight.formatter import ECMLPygmentsFormatter
+from ecromedos.highlight.styles.github import GithubStyle
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_style_by_name

@@ -11,8 +11,8 @@ ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
 
 sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
 
-from net.ecromedos.error import ECMDSPluginError
-import net.ecromedos.plugins.final as final
+from ecromedos.error import ECMDSPluginError
+import ecromedos.plugins.final as final
 
 class UTTestPluginFinal(unittest.TestCase):
 

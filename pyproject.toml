@@ -4,7 +4,7 @@ version = "3.0.1"
 dependencies = ["lxml", "mistune", "pygments"]
 
 [project.scripts]
-ecromedos = "net.ecromedos.ecromedos:main"
+ecromedos = "ecromedos.ecromedos:main"
 
 [tool.setuptools_scm]
 # write_to = "pkg/_version.py"

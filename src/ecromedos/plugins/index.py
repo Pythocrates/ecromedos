@@ -8,7 +8,7 @@
 
 import sys, locale, functools
 import lxml.etree as etree
-from net.ecromedos.error import ECMDSPluginError
+from ecromedos.error import ECMDSPluginError
 
 def getInstance(config):
     """Returns a plugin instance."""

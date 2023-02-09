@@ -9,8 +9,8 @@
 import os, re
 from lxml import etree
 import mistune
-from net.ecromedos.configreader import ECMDSConfigReader
-from net.ecromedos.dtdresolver  import ECMDSDTDResolver
+from ecromedos.configreader import ECMDSConfigReader
+from ecromedos.dtdresolver  import ECMDSDTDResolver
 
 class ECMLRendererError(Exception):
     pass

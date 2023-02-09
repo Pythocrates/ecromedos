@@ -8,10 +8,10 @@
 
 import os, sys
 import lxml.etree as etree
-from net.ecromedos.error import ECMDSError, ECMDSPluginError
-from net.ecromedos.configreader import ECMDSConfigReader
-from net.ecromedos.dtdresolver  import ECMDSDTDResolver
-from net.ecromedos.preprocessor import ECMDSPreprocessor
+from ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos.configreader import ECMDSConfigReader
+from ecromedos.dtdresolver  import ECMDSDTDResolver
+from ecromedos.preprocessor import ECMDSPreprocessor
 
 class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
 

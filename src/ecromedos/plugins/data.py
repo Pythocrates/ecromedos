@@ -7,7 +7,7 @@
 #
 
 import os, shutil
-from net.ecromedos.error import ECMDSPluginError
+from ecromedos.error import ECMDSPluginError
 
 def getInstance(config):
     """Returns a plugin instance."""

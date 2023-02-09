@@ -17,8 +17,8 @@ MD2ECML_INSTALL_DIR = os.path.normpath(
 
 sys.path.insert(1, MD2ECML_INSTALL_DIR + os.sep + 'lib')
 
-from net.ecromedos.markdown import MarkdownConverter, MarkdownConverterError
-from net.ecromedos.version import VERSION
+from ecromedos.markdown import MarkdownConverter, MarkdownConverterError
+from ecromedos.version import VERSION
 
 # exit values
 MD2ECML_ERR_INVOCATION = 1

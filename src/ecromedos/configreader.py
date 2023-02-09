@@ -8,7 +8,7 @@
 
 from importlib.resources import files, as_file
 import os, sys, re
-from net.ecromedos.error import ECMDSConfigError
+from ecromedos.error import ECMDSConfigError
 
 class ECMDSConfigReader():
 
@@ -35,7 +35,7 @@ class ECMDSConfigReader():
         if "config_file" in options:
             cfile = os.path.normpath(options["config_file"])
         else:
-            cfile = str(files("net.ecromedos").joinpath("defaults/ecmds.conf"))
+            cfile = str(files("ecromedos").joinpath("defaults/ecmds.conf"))
         #end if
 
         if not (cfile and os.path.isfile(cfile)):
@@ -93,7 +93,7 @@ class ECMDSConfigReader():
         if "plugins_map" in self.config:
             cfile = os.path.normpath(self.config["plugins_map"])
         else:
-            cfile = str(files("net.ecromedos").joinpath("defaults/plugins.conf"))
+            cfile = str(files("ecromedos").joinpath("defaults/plugins.conf"))
         #end if
 
         if not (cfile and os.path.isfile(cfile)):

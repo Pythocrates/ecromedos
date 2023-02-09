@@ -10,8 +10,8 @@ ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(
 
 sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
 
-from net.ecromedos.configreader import ECMDSConfigReader
-from net.ecromedos.error import ECMDSConfigError
+from ecromedos.configreader import ECMDSConfigReader
+from ecromedos.error import ECMDSConfigError
 
 class UTTestConfigReader(unittest.TestCase):
 
@@ -41,7 +41,7 @@ class UTTestConfigReader(unittest.TestCase):
             'install_dir': ECMDS_INSTALL_DIR + '',
             'latex_bin': '/usr/bin/latex',
             'lib_dir': ECMDS_INSTALL_DIR + '/lib',
-            'plugin_dir': ECMDS_INSTALL_DIR + '/lib/net/ecromedos/plugins',
+            'plugin_dir': ECMDS_INSTALL_DIR + '/ecromedos/plugins',
             'style_dir': ECMDS_INSTALL_DIR + '/xslt',
             'target_format': 'xhtml',
             'pygments_default_colorscheme': 'default'

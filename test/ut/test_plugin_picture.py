@@ -19,8 +19,8 @@ ECMDS_TEST_DATA_DIR = os.path.join(
 
 sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + 'lib')
 
-from net.ecromedos.error import ECMDSPluginError
-import net.ecromedos.plugins.picture as picture
+from ecromedos.error import ECMDSPluginError
+import ecromedos.plugins.picture as picture
 
 class UTTestPluginPicture(unittest.TestCase):
 

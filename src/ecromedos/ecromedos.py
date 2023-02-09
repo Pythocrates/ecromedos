@@ -11,12 +11,12 @@ from importlib.resources import files, as_file
 import os, sys, getopt, tempfile
 
 # make ecromedos relocatable
-ECMDS_INSTALL_DIR = str(files("net.ecromedos"))
+ECMDS_INSTALL_DIR = str(files("ecromedos"))
 
-from net.ecromedos.version import VERSION
-from net.ecromedos.error import ECMDSError, ECMDSPluginError
-from net.ecromedos.ecmlprocessor import ECMLProcessor
-import net.ecromedos.templates as document_templates
+from ecromedos.version import VERSION
+from ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos.ecmlprocessor import ECMLProcessor
+import ecromedos.templates as document_templates
 
 # exit values
 ECMDS_ERR_INVOCATION = 1
