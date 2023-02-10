@@ -3,8 +3,6 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-from ecromedos.error import ECMDSPluginError
-
 
 def getInstance(config):
     """Returns a plugin instance."""
@@ -43,15 +41,15 @@ class Plugin:
             "^": "\\^{}",
             "\\": "\\textbackslash{}",
             "~": "\\textasciitilde{}",
-            "-": "{}{\string-}{}",
-            ":": "{}{\string:}{}",
-            ";": "{}{\string;}{}",
-            "!": "{}{\string!}{}",
-            "?": "{}{\string?}{}",
-            '"': '{}{\string"}{}',
-            "`": "{}{\string`}{}",
-            "'": "{}{\string'}{}",
-            "=": "{}{\string=}{}",
+            "-": "{}{\\string-}{}",
+            ":": "{}{\\string:}{}",
+            ";": "{}{\\string;}{}",
+            "!": "{}{\\string!}{}",
+            "?": "{}{\\string?}{}",
+            '"': '{}{\\string"}{}',
+            "`": "{}{\\string`}{}",
+            "'": "{}{\\string'}{}",
+            "=": "{}{\\string=}{}",
             "\n": "\n",
         }
 

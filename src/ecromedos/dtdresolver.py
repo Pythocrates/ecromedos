@@ -7,6 +7,8 @@ import os
 
 import lxml.etree as etree
 
+from ecromedos.error import ECMDSError
+
 
 class ECMDSDTDResolver(etree.Resolver):
     def resolve(self, url, system_id, context):

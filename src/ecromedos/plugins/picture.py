@@ -9,8 +9,6 @@ import shutil
 import subprocess
 import tempfile
 
-import lxml.etree as etree
-
 from ecromedos.error import ECMDSPluginError
 
 
@@ -192,8 +190,6 @@ class Plugin:
             raise ECMDSPluginError(msg, "picture")
 
     def __eps2pdf(self, src, dst):
-        # determine extension
-        ext = "." + src.strip().split(".")[-1]
 
         # look for bounding box
         rexpr = re.compile(r"(^%%BoundingBox:)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)")
@@ -233,11 +229,11 @@ class Plugin:
         finally:
             try:
                 infile.close()
-            except:
+            except Exception:
                 pass
             try:
                 outfile.close()
-            except:
+            except Exception:
                 pass
 
     def __identifyWidth(self, src):

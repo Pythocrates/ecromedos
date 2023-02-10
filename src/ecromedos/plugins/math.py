@@ -9,7 +9,6 @@ import re
 import subprocess
 import tempfile
 
-import lxml
 import lxml.etree as etree
 
 from ecromedos.error import ECMDSPluginError

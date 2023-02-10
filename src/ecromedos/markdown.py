@@ -17,9 +17,9 @@ class ECMLRendererError(Exception):
     pass
 
 
-class ECMLRenderer(mistune.Renderer):
+class ECMLRenderer(mistune.HTMLRenderer):
     def __init__(self, config):
-        mistune.Renderer.__init__(self)
+        mistune.HTMLRenderer.__init__(self)
         self.section_level = 0
         self.footnotes_map = {}
         self.config = config
@@ -27,7 +27,7 @@ class ECMLRenderer(mistune.Renderer):
     # BLOCK ELEMENTS
 
     def block_code(self, code, language=None):
-        if language == None:
+        if language is None:
             language = "text"
 
         return """<listing><code syntax="%(lang)s" strip="yes"
@@ -56,7 +56,7 @@ class ECMLRenderer(mistune.Renderer):
 
             # we close until we reach the new level
             if sign <= 0:
-                for i in range(diff + 1):
+                for _ in range(diff + 1):
                     retval += "</section>"
 
         retval += '<section level="%d">' % level
@@ -190,9 +190,11 @@ class MarkdownConverterError(Exception):
 
 class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
-    DOCUMENT_TEMPLATE = """\
+    DOCUMENT_TEMPLATE = (
+        """\
 <!DOCTYPE %(document_type)s SYSTEM "http://www.ecromedos.net/dtd/3.0/ecromedos.dtd">
-<%(document_type)s bcor="%(bcor)s" div="%(div)s" lang="%(lang)s" papersize="%(papersize)s" parskip="%(parskip)s" secnumdepth="%(secnumdepth)s" secsplitdepth="%(secsplitdepth)s">
+<%(document_type)s bcor="%(bcor)s" div="%(div)s" lang="%(lang)s" papersize="%(papersize)s" parskip="%(parskip)s" """
+        """secnumdepth="%(secnumdepth)s" secsplitdepth="%(secsplitdepth)s">
 
     %(header)s
     %(legal)s
@@ -203,6 +205,7 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
 </%(document_type)s>
     """
+    )
 
     def __init__(self, options):
         ECMDSConfigReader.__init__(self)
@@ -375,12 +378,12 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
         footnote_ref = ref_node.get("idref", None)
         footnote_def = footnotes.get(footnote_ref, None)
 
-        if footnote_def == None:
+        if footnote_def is None:
             raise MarkdownConverterError("Unresolved footnote reference '%s'" % footnote_ref)
 
         try:
             footnote = etree.fromstring(footnote_def)
-        except etree.XMLSyntaxError as e:
+        except etree.XMLSyntaxError:
             raise MarkdownConverterError("Footnote '%s' is not a valid XML fragment." % footnote_ref)
 
         if footnote.tag != "p":
@@ -510,7 +513,7 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
 
         if os.path.isabs(src) or os.path.isfile(src):
             return img_node
-        if not "input_dir" in self.config:
+        if "input_dir" not in self.config:
             return img_node
 
         input_dir = self.config["input_dir"]

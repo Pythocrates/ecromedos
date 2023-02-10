@@ -3,8 +3,6 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-from lxml import etree
-
 
 def getInstance(config):
     """Returns a plugin instance."""

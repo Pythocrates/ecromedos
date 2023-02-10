@@ -47,7 +47,7 @@ class Plugin:
 
         # copy node properties to new node
         for k, v in node.attrib.items():
-            if not k in newnode.attrib:
+            if k not in newnode.attrib:
                 newnode.attrib[k] = v
             else:
                 if k == "bgcolor":

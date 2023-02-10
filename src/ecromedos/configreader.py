@@ -6,7 +6,7 @@
 import os
 import re
 import sys
-from importlib.resources import as_file, files
+from importlib.resources import files
 
 from ecromedos.error import ECMDSConfigError
 
@@ -160,15 +160,6 @@ class ECMDSConfigReader:
 
         return config
 
-    def __normPaths(self, config):
-        """Normalize all path names for current platform."""
-
-        for key, value in list(config.items()):
-            if key.endswith("_bin") or key.endswith("_dir"):
-                config[key] = os.path.normpath(value)
-
-        return config
-
     def __initLibPath(self):
         """Initialize library path."""
 
@@ -177,5 +168,5 @@ class ECMDSConfigReader:
         except KeyError:
             return
 
-        if not lib_dir in sys.path:
+        if lib_dir not in sys.path:
             sys.path.insert(1, lib_dir)

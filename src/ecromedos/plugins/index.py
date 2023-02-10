@@ -9,8 +9,6 @@ import sys
 
 import lxml.etree as etree
 
-from ecromedos.error import ECMDSPluginError
-
 
 def getInstance(config):
     """Returns a plugin instance."""
@@ -76,7 +74,7 @@ class Plugin:
         node.getparent().replace(node, label_node)
 
         # at least 'item' must exist
-        if item != None:
+        if item is not None:
             index = self.index.setdefault(group, [group, {}, [], None])
 
             for entry in [item, subitem, subsubitem, None]:
@@ -273,7 +271,7 @@ class Plugin:
         # load group
         try:
             index = self.index[group][1]
-        except:
+        except Exception:
             return node
 
         # sort index

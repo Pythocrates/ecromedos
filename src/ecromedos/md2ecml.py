@@ -7,13 +7,13 @@ import getopt
 import os
 import sys
 
+from ecromedos.markdown import MarkdownConverter, MarkdownConverterError
+from ecromedos.version import VERSION
+
 # make ecromedos relocatable
 MD2ECML_INSTALL_DIR = os.path.normpath(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + "..")
 
 sys.path.insert(1, MD2ECML_INSTALL_DIR + os.sep + "lib")
-
-from ecromedos.markdown import MarkdownConverter, MarkdownConverterError
-from ecromedos.version import VERSION
 
 # exit values
 MD2ECML_ERR_INVOCATION = 1
@@ -92,7 +92,7 @@ def parseCmdLine():
             printVersion()
             sys.exit(0)
         elif o == "--doctype":
-            if not v in ["article", "report", "book"]:
+            if v not in ["article", "report", "book"]:
                 raise MarkdownConverterError("Invalid document class '%s'" % v)
             options["document_type"] = v
         elif o == "--bcor":
@@ -103,15 +103,15 @@ def parseCmdLine():
             options["lang"] = v
         elif o == "papersize":
             valid_paper_sizes = ["legal", "letter", "executive"]
-            for i in [a, b, c, d]:
+            for i in "abcd":
                 for j in range(7):
-                    valid_paper_sizes.append(i + str(j) + paper)
-            if not v in valid_paper_sizes:
+                    valid_paper_sizes.append(i + str(j) + "paper")
+            if v not in valid_paper_sizes:
                 msg = "Invalid paper size '%s'" % v
                 raise MarkdownConverterError(msg)
             options["papersize"] = v
         elif o == "parskip":
-            if not v in ["half", "full", "off"]:
+            if v not in ["half", "full", "off"]:
                 msg = "Invalid parskip '%s'" % v
                 raise MarkdownConverterError(msg)
             options["parskip"] = v

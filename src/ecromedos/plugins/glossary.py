@@ -9,8 +9,6 @@ import sys
 
 import lxml.etree as etree
 
-from ecromedos.error import ECMDSPluginError
-
 
 def getInstance(config):
     """Returns a plugin instance."""

@@ -2,12 +2,12 @@ import os
 import sys
 import unittest
 
+from ecromedos.configreader import ECMDSConfigReader
+from ecromedos.error import ECMDSConfigError
+
 ECMDS_INSTALL_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "..", ".."))
 
 sys.path.insert(1, ECMDS_INSTALL_DIR + os.sep + "lib")
-
-from ecromedos.configreader import ECMDSConfigReader
-from ecromedos.error import ECMDSConfigError
 
 
 class UTTestConfigReader(unittest.TestCase):

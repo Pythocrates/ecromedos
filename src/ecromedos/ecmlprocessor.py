@@ -10,7 +10,7 @@ import lxml.etree as etree
 
 from ecromedos.configreader import ECMDSConfigReader
 from ecromedos.dtdresolver import ECMDSDTDResolver
-from ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos.error import ECMDSError
 from ecromedos.preprocessor import ECMDSPreprocessor
 
 
@@ -85,7 +85,7 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         # validate the document
         result = dtd.validate(document)
 
-        if result == False:
+        if not result:
             raise ECMDSError(dtd.error_log.last_error)
 
         return result
