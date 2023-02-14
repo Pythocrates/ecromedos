@@ -254,7 +254,7 @@
     <!-- column position -->
     <xsl:variable name="column">
         <xsl:value-of select="
-            count(preceding-sibling::td[not(@colspan &gt; 1)]) + 
+            count(preceding-sibling::td[not(@colspan &gt; 1)]) +
             sum(preceding-sibling::td[@colspan &gt; 1]/@colspan) + 1"/>
     </xsl:variable>
 

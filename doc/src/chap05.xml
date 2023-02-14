@@ -560,7 +560,7 @@ pygmentize -L
             <p>
                 <idxterm group="ecml"><item>verbatim</item><subitem>strip</subitem></idxterm>
                 <idxterm group="ecml"><item>code</item><subitem>bgcolor</subitem></idxterm>
-            
+
             Setting the <tt><b>strip</b></tt> attribute on the <tt><b>verbatim</b></tt> or
             <tt><b>code</b></tt> elements to <tt>yes</tt> will result in whitespace being
             stripped from the beginning and end of your listing. You can override the background

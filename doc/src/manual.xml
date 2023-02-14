@@ -67,7 +67,7 @@
         </p>
     </legal>
 
-    <make-toc depth="3" lof="no" lot="no" lol="no"/>    
+    <make-toc depth="3" lof="no" lot="no" lol="no"/>
 
     &chap01;
     &chap02;

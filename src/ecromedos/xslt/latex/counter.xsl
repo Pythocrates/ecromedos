@@ -27,7 +27,7 @@
     <xsl:variable name="secnumdepth">
         <xsl:call-template name="util.secnumdepth"/>
     </xsl:variable>
-    
+
     <xsl:variable name="group">
         <xsl:value-of select="@group"/>
     </xsl:variable>
@@ -57,7 +57,7 @@
             </xsl:when>
         </xsl:choose>
     </xsl:variable>
-    
+
     <xsl:variable name="counterval">
         <xsl:choose>
             <xsl:when test="/article or @simple = 'yes'">
@@ -82,7 +82,7 @@
                 <xsl:variable name="id" select="generate-id(ancestor::preface)"/>
                 <xsl:number value="count(preceding::counter[generate-id(ancestor::preface) = $id and @group = $group])"/>
             </xsl:when>
-        </xsl:choose>    
+        </xsl:choose>
     </xsl:variable>
 
     <xsl:choose>

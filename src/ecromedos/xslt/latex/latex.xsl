@@ -39,7 +39,7 @@
     <xsl:variable name="secnumdepth">
         <xsl:call-template name="util.secnumdepth"/>
     </xsl:variable>
-    
+
     <!-- set depth of section numbering -->
     <xsl:text>\setcounter{secnumdepth}{</xsl:text>
         <xsl:call-template name="util.secdepth.translate">
@@ -168,7 +168,7 @@
     <xsl:text>\newlength{\ecmdstablewidth}&#x0a;</xsl:text>
     <xsl:text>\newlength{\ecmdscolsep}&#x0a;</xsl:text>
      <xsl:text>\usepackage{multirow}&#x0a;&#x0a;</xsl:text>
- 
+
     <xsl:text>% Environment for nested block elements&#x0a;</xsl:text>
     <xsl:text>\newenvironment{blockelement}{%&#x0a;</xsl:text>
     <xsl:text>\noindent\begin{trivlist}\item%&#x0a;</xsl:text>
@@ -177,7 +177,7 @@
 
     <!-- spare length variable -->
     <xsl:text>\newlength{\ecmdstmplength}&#x0a;&#x0a;</xsl:text>
-    
+
     <!-- used for indices -->
     <xsl:text>\usepackage{multicol}&#x0a;&#x0a;</xsl:text>
 
@@ -220,7 +220,7 @@
 
     <xsl:text>% Graphics environment&#x0a;</xsl:text>
     <xsl:text>\usepackage{graphicx}&#x0a;&#x0a;</xsl:text>
-        
+
     <xsl:text>% Inline objects&#x0a;</xsl:text>
     <xsl:text>\usepackage{wrapfig}&#x0a;&#x0a;</xsl:text>
 

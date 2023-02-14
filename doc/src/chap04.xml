@@ -20,7 +20,7 @@
                     <idxterm group="ecml"><item>chapter</item></idxterm>
                     <idxterm group="ecml"><item>section</item></idxterm>
                     <idxterm group="ecml"><item>subsection</item></idxterm>
-                    <idxterm group="ecml"><item>subsubsection</item></idxterm>            
+                    <idxterm group="ecml"><item>subsubsection</item></idxterm>
                 </p>
                 <listing>
                     <code syntax="text" strip="yes"><![CDATA[
@@ -323,7 +323,7 @@ report
                 title or academic degree should not be separated from the name that follows it.
                 Consequently, you should write <tt>Dr.&amp;nbsp;Pepper</tt> or
                 <tt>&lt;nobr&gt;Dr.&nbsp;Pepper&lt;/nobr&gt;</tt> to prevent the formatting engine
-                from possibly breaking the line right before Pepper. 
+                from possibly breaking the line right before Pepper.
                 </p>
             </subsection>
         </section>
@@ -357,7 +357,7 @@ report
                 Take a look at the following example:
                 </p>
                 <listing>
-                    <code syntax="xml" strip="yes"><![CDATA[            
+                    <code syntax="xml" strip="yes"><![CDATA[
 <chapter>
     <title>The Show about Nothing</title>
     <p>
@@ -421,7 +421,7 @@ cool skate videos.
             element. For example, you may decide to create an <qq>example</qq>
             environment with its own object counter. An instance of such an
             <qq>example</qq> might look like this:
-            
+
                 <idxterm group="ecml"><item>counter</item></idxterm>
             </p>
             <listing>

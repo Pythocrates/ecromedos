@@ -43,7 +43,7 @@
                                     <xsl:apply-templates select="head/subject"/>
                                 </div>
                             </xsl:if>
-                            
+
                             <div><xsl:apply-templates select="head/title"/></div>
 
                             <!-- subtitle -->
@@ -147,7 +147,7 @@
     <xsl:variable name="secnumdepth">
         <xsl:call-template name="util.secnumdepth"/>
     </xsl:variable>
-    
+
     <!-- "list of something" -->
     <h1>
         <xsl:call-template name="i18n.print">
@@ -226,7 +226,7 @@
                     <xsl:when test="ancestor::part">
                         <xsl:call-template name="i18n.print">
                             <xsl:with-param name="key" select="'parttoc'"/>
-                        </xsl:call-template>                    
+                        </xsl:call-template>
                     </xsl:when>
                 </xsl:choose>
             </div>
@@ -324,7 +324,7 @@
     <xsl:param name="curdepth"/>
     <xsl:param name="secnumdepth"/>
     <xsl:param name="iteration"/>
-        
+
     <!-- link style -->
     <xsl:variable name="link-style">
         <xsl:choose>

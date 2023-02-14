@@ -49,7 +49,7 @@
                 <xsl:apply-templates select="bibitem" mode="manual"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates select="bibitem" mode="auto"/>            
+                <xsl:apply-templates select="bibitem" mode="auto"/>
             </xsl:otherwise>
         </xsl:choose>
     </table>

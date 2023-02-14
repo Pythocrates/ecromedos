@@ -24,7 +24,7 @@
         <xsl:otherwise>
             <xsl:call-template name="i18n.print">
                 <xsl:with-param name="key" select="'startnestedquote'"/>
-            </xsl:call-template>        
+            </xsl:call-template>
             <xsl:apply-templates/>
             <xsl:call-template name="i18n.print">
                 <xsl:with-param name="key" select="'endnestedquote'"/>
@@ -326,7 +326,7 @@
     <xsl:variable name="secsplitdepth">
         <xsl:call-template name="util.secsplitdepth"/>
     </xsl:variable>
-    
+
     <!-- recurse or print filename -->
     <xsl:choose>
         <xsl:when test="$secsplitdepth = 0">
@@ -396,7 +396,7 @@
 
         <!-- generic template -->
         <xsl:when test="/article">
-            <xsl:number value="count(preceding::*[name() = $element and descendant::caption]) + 1"/>        
+            <xsl:number value="count(preceding::*[name() = $element and descendant::caption]) + 1"/>
         </xsl:when>
         <xsl:when test="$secnumdepth &lt;= 0 or ($secnumdepth &lt;= 1 and //part)">
             <xsl:text>0.</xsl:text>

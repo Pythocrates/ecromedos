@@ -106,7 +106,7 @@
     <xsl:value-of select="$columns"/>
     <xsl:text> - \arrayrulewidth * </xsl:text>
     <xsl:value-of select="
-        count(colgroup/col[(position() != last()) 
+        count(colgroup/col[(position() != last())
         and contains(@frame, 'colsep')])"/>
     <xsl:if test="contains(@frame, 'left')">
         <xsl:text> - \arrayrulewidth </xsl:text>
@@ -362,7 +362,7 @@
         </xsl:if>
         <xsl:apply-templates select="th"/>
         <xsl:text>\endhead&#x0a;</xsl:text>
-        
+
         <!-- table foot -->
         <xsl:apply-templates select="tf"/>
         <xsl:if test="contains(@frame, 'bottom')">
@@ -432,7 +432,7 @@
     <xsl:value-of select="$columns"/>
     <xsl:text> - \arrayrulewidth * </xsl:text>
     <xsl:value-of select="
-        count(colgroup/col[(position() != last()) 
+        count(colgroup/col[(position() != last())
         and contains(@frame, 'colsep')])"/>
     <xsl:text>}%&#x0a;</xsl:text>
 
@@ -581,7 +581,7 @@
         <!-- column number -->
         <xsl:variable name="column">
             <xsl:value-of select="
-                count(preceding-sibling::*[not(@colspan &gt; 1)]) + 
+                count(preceding-sibling::*[not(@colspan &gt; 1)]) +
                 sum(preceding-sibling::*[@colspan &gt; 1]/@colspan) + 1"/>
         </xsl:variable>
 
@@ -621,7 +621,7 @@
                     contains(parent::*/parent::*/@frame, 'colsep'))
                         and
                     not(position() = 1)
-                        and 
+                        and
                     contains(parent::*/parent::*/colgroup/col[
                         position() = ($column - 1)]/@frame, 'colsep')">
                     <xsl:text> + 0.5\arrayrulewidth </xsl:text>
@@ -644,7 +644,7 @@
                     contains(parent::*/parent::*/@frame, 'colsep'))
                         and
                     not(position() = last())
-                        and 
+                        and
                     contains(parent::*/parent::*/colgroup/col[
                         position() = ($column + $colspan - 1)]/@frame, 'colsep')">
                     <xsl:text> + 0.5\arrayrulewidth </xsl:text>
@@ -685,7 +685,7 @@
 
         <!-- left table border -->
         <xsl:if test="
-            position() = 1 and 
+            position() = 1 and
             contains(parent::*/parent::*/@frame, 'left')">
             <xsl:text>|</xsl:text>
         </xsl:if>
@@ -703,7 +703,7 @@
                 contains(parent::*/parent::*/@frame, 'colsep'))
                     and
                 not(position() = 1)
-                    and 
+                    and
                 contains(parent::*/parent::*/colgroup/col[
                     position() = ($column - 1)]/@frame, 'colsep')">
                 <xsl:text>@{\hspace{\ecmdscolsep}}</xsl:text>

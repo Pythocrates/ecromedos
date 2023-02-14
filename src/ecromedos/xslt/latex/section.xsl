@@ -70,7 +70,7 @@
             <xsl:text>&#x0a;&#x0a;</xsl:text>
         </xsl:if>
     </xsl:for-each>
-    
+
     <!-- pop stack -->
     <xsl:text>}</xsl:text>
 </xsl:template>
@@ -165,7 +165,7 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
-    
+
     <xsl:choose>
         <xsl:when test="not(title)">
             <xsl:text></xsl:text>
@@ -261,10 +261,10 @@
   - multiple output files and printing section contents.
 -->
 <xsl:template name="section.print">
-    
+
     <xsl:param name="secsplitdepth"/>
     <xsl:param name="curdepth"/>
-    
+
     <xsl:choose>
         <!-- output to separate file -->
         <xsl:when test="$secsplitdepth >= $curdepth">

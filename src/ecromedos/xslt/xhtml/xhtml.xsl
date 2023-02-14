@@ -139,7 +139,7 @@
     <xsl:param name="secsplitdepth"/>
     <xsl:param name="secnumdepth"/>
     <xsl:param name="mode"/>
-    
+
     <xsl:variable name="nodeid">
         <xsl:choose>
             <xsl:when test="generate-id(parent::*) = generate-id(/*[1])">
@@ -166,7 +166,7 @@
                     <xsl:with-param name="secnumdepth" select="$secnumdepth"/>
                     <xsl:with-param name="direction" select="'up'"/>
                     <xsl:with-param name="nodeid" select="$nodeid"/>
-                </xsl:call-template>        
+                </xsl:call-template>
             </xsl:when>
         </xsl:choose>
     </xsl:for-each>

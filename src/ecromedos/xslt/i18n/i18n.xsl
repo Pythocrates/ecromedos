@@ -96,13 +96,13 @@
 -->
 <xsl:template name="i18n.babel.lang">
     <xsl:choose>
-        <xsl:when test="$global.i18n/i18n/language[@id = 
+        <xsl:when test="$global.i18n/i18n/language[@id =
             $global.lang.id]/settings[contains(@format, 'latex')]/babel[@territory = $global.lang.territory]">
-                <xsl:value-of select="$global.i18n/i18n/language[@id = 
+                <xsl:value-of select="$global.i18n/i18n/language[@id =
                     $global.lang.id]/settings[contains(@format, 'latex')]/babel[@territory = $global.lang.territory]"/>
         </xsl:when>
         <xsl:otherwise><!-- default -->
-            <xsl:value-of select="$global.i18n/i18n/language[@id = 
+            <xsl:value-of select="$global.i18n/i18n/language[@id =
             $global.lang.id]/settings[contains(@format, 'latex')]/babel[1]"/>
         </xsl:otherwise>
     </xsl:choose>
@@ -113,14 +113,14 @@
 -->
 <xsl:template name="i18n.babel.select">
     <xsl:choose>
-        <xsl:when test="$global.i18n/i18n/language[@id = 
+        <xsl:when test="$global.i18n/i18n/language[@id =
             $global.lang.id]/settings[contains(@format, 'latex')]/babel[@territory = $global.lang.territory]">
-                <xsl:value-of select="$global.i18n/i18n/language[@id = 
+                <xsl:value-of select="$global.i18n/i18n/language[@id =
                     $global.lang.id]/settings[contains(@format, 'latex')]/babel[
                     @territory = $global.lang.territory]/select"/>
         </xsl:when>
         <xsl:otherwise><!-- default -->
-            <xsl:value-of select="$global.i18n/i18n/language[@id = 
+            <xsl:value-of select="$global.i18n/i18n/language[@id =
             $global.lang.id]/settings[contains(@format, 'latex')]/babel[1]/select"/>
         </xsl:otherwise>
     </xsl:choose>

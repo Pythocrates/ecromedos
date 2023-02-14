@@ -69,7 +69,7 @@
                     <xsl:otherwise>
                         <xsl:text>\vspace{1.2ex}%&#x0a;</xsl:text>
                     </xsl:otherwise>
-                </xsl:choose>                
+                </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
     <xsl:text>\end{listing}</xsl:text>

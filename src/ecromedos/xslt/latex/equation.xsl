@@ -60,7 +60,7 @@
         <xsl:text>}</xsl:text>
     </xsl:if>
     <xsl:apply-templates/>
-    <xsl:text>\end{displaymath}%&#x0a;</xsl:text>    
+    <xsl:text>\end{displaymath}%&#x0a;</xsl:text>
 </xsl:template>
 
 </xsl:stylesheet>

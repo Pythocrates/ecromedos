@@ -64,7 +64,7 @@ git clone https://github.com/tobijk/ecromedos.git
                 <dt>Imagemagick</dt>
                 <dd>
                         A set of tools for image manipulation. ecromedos uses Imagemagick for
-                    resizing bitmap images and for format conversions. You can download the 
+                    resizing bitmap images and for format conversions. You can download the
                     software from
                     <link url="http://imagemagick.org"><tt>http://&zwsp;www.&zwsp;imagemagick.&zwsp;org</tt></link>.
                 </dd>
@@ -122,7 +122,7 @@ apt-get install python3 python3-lxml dvipng imagemagick python3-pygments \
 su -
                     </code>
                 </listing>
-                <p>            
+                <p>
                     Then change your working directory to <tt>/opt</tt>
                 </p>
                 <listing>

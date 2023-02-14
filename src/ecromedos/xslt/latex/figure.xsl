@@ -28,7 +28,7 @@
         <xsl:value-of select="$printwidth"/>
     <xsl:text>]{</xsl:text>
         <xsl:value-of select="@src"/>
-    <xsl:text>}\vspace{0.5ex}}\hspace{0.25em}</xsl:text>    
+    <xsl:text>}\vspace{0.5ex}}\hspace{0.25em}</xsl:text>
 </xsl:template>
 
 <!--

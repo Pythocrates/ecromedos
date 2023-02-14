@@ -2,7 +2,7 @@
     <chapter>
         <title><label id="sect:styling"/>Styling Your Documents</title>
         <p>
-            For each supported output format there exists a subfolder    
+            For each supported output format there exists a subfolder
         <tt>xslt/&lt;format&gt;</tt> below the installation folder. Inside this
         folder, the XSL stylesheets with the transformation rules for the
         given target format and a style definition file named <tt>style.xml</tt>
@@ -64,7 +64,7 @@
                 <dt>chapterpage-style</dt>
                 <dd>
                     <p>
-                    The page style to be used for pages starting a new chapter (see 
+                    The page style to be used for pages starting a new chapter (see
                     <cite idref="bib:KOMASCR"/> for details). Use <tt>emtpy</tt> for a page without
                     any decorations, <tt>scrplain</tt> for a page that is undecorated but has a page
                     number or <tt>scrheadings</tt> for a page with page number and column titles.
@@ -133,7 +133,7 @@
                 <dt>indexpage-style</dt>
                 <dd>
                     <p>
-                    The page style to be used for pages starting a keyword index (see 
+                    The page style to be used for pages starting a keyword index (see
                     <cite idref="bib:KOMASCR"/> for details). Use <tt>emtpy</tt> for a page without any
                     decorations, <tt>scrplain</tt> for a page that is undecorated but has a
                     page number, or <tt>scrheadings</tt> for a page with page number and column titles.
@@ -200,7 +200,7 @@
                 <dt>partpage-style</dt>
                 <dd>
                     <p>
-                    The page style to be used for pages starting a new part (see 
+                    The page style to be used for pages starting a new part (see
                     <cite idref="bib:KOMASCR"/> for details). Use <tt>emtpy</tt> for a page without any
                     decorations, <tt>scrplain</tt> for a page that is undecorated but has a
                     page number, or <tt>scrheadings</tt> for a page with page number and column titles.
@@ -240,10 +240,10 @@
                 <dt>titlepage-style</dt>
                 <dd>
                     <p>
-                    The page style to be used for the title page (see 
+                    The page style to be used for the title page (see
                     <cite idref="bib:KOMASCR"/> for details). Use <tt>emtpy</tt> for a page without any
                     decorations, <tt>scrplain</tt> for a page that is undecorated but has a
-                    page number, or <tt>scrheadings</tt> for a page with page number and column titles.                    
+                    page number, or <tt>scrheadings</tt> for a page with page number and column titles.
                     </p>
                 </dd>
             </dl>

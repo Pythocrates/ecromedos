@@ -40,7 +40,7 @@
 <!ENTITY % referencing-text "cite | ref | pageref | entity | label | idxterm">
 
 <!ENTITY % formatting-text
-    "span | i | b | u | tt | xx-small | x-small | small 
+    "span | i | b | u | tt | xx-small | x-small | small
     | medium | large | x-large | xx-large | sup | sub | nobr | br | y" >
 
 <!ENTITY % annotating-text "footnote | link | defterm">

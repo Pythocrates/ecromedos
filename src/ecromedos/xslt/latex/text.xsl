@@ -30,7 +30,7 @@
             <xsl:call-template name="i18n.print">
                 <xsl:with-param name="key" select="'startnestedquote'"/>
             </xsl:call-template>
-            <xsl:text>}</xsl:text>        
+            <xsl:text>}</xsl:text>
             <xsl:apply-templates/>
             <xsl:text>{</xsl:text>
             <xsl:call-template name="i18n.print">

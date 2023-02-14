@@ -167,7 +167,7 @@
             </h1>
         </xsl:when>
         <xsl:when test="$curdepth >= 5">
-            <h4><a name="{generate-id()}" id="{generate-id()}"></a><xsl:value-of select="$prefix"/><xsl:apply-templates select="title"/></h4>        
+            <h4><a name="{generate-id()}" id="{generate-id()}"></a><xsl:value-of select="$prefix"/><xsl:apply-templates select="title"/></h4>
         </xsl:when>
         <xsl:when test="$curdepth = 4">
             <h4><a name="{generate-id()}" id="{generate-id()}"></a><xsl:value-of select="$prefix"/><xsl:apply-templates select="title"/></h4>
@@ -271,7 +271,7 @@
     <xsl:param name="secsplitdepth"/>
     <xsl:param name="curdepth"/>
     <xsl:param name="secnumdepth"/>
- 
+
     <xsl:choose>
         <!-- put section in separate file -->
         <xsl:when test="$secsplitdepth >= $curdepth">

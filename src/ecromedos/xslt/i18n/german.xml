@@ -40,10 +40,10 @@
         <translation key="nav-prev">Zurück</translation>
         <translation key="nav-next">Weiter</translation>
         <translation key="nav-up">Nach oben</translation>
-    
+
         <translation key="sectionnumber">%n.</translation>
         <translation key="sectionnumber" class="article">%n</translation>
-    
+
         <translation key="startquote">&#8222;</translation>
         <translation key="endquote">&#8220;</translation>
         <translation key="startnestedquote">&#8218;</translation>

@@ -23,7 +23,7 @@
 
 <!--
   - Leave a mark for a footnote.
---> 
+-->
 <xsl:template name="footnote.mark">
     <xsl:variable name="sectid">
         <xsl:value-of select="generate-id(ancestor::*[not(name() = 'part')][last()-1])"/>
@@ -108,7 +108,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
-            var mnotes = new Array(<xsl:value-of select="$num_marginals"/>);    
+            var mnotes = new Array(<xsl:value-of select="$num_marginals"/>);
             <xsl:choose>
                 <xsl:when test="$secsplitdepth > $curdepth">
                     <xsl:for-each select="
@@ -146,7 +146,7 @@
                     div.style.top = top + "px";
                 }
             }
-            
+
             window.onload = update_margin;
             window.onresize = update_margin;
         </xsl:comment>
@@ -174,7 +174,7 @@
                 <div id="div:{generate-id()}" class="marginal">
                     <xsl:apply-templates mode="settext" select="."/>
                 </div>
-            </xsl:for-each>        
+            </xsl:for-each>
         </xsl:when>
         <!-- including subsections -->
         <xsl:otherwise>
@@ -193,7 +193,7 @@
 <xsl:template match="link">
     <xsl:variable name="url" select="@url"/>
     <xsl:variable name="idref" select="@idref"/>
-    
+
     <xsl:choose>
         <xsl:when test="$url">
             <a href="{$url}"><xsl:apply-templates/></a>

@@ -42,7 +42,7 @@
                     <code syntax="xml" strip="yes"><![CDATA[
 <p>
 Users who are already familiar with HTML or document markup
-languages like DocBook 
+languages like DocBook
 
 <defterm>
     <dt>DocBook</dt>
@@ -171,7 +171,7 @@ will find learning ECML particularly easy.
                     <idxterm group="ecml"><item>glossary</item></idxterm>
                     <idxterm group="ecml"><item>glsection</item></idxterm>
                     <idxterm group="ecml"><item>glsection</item><subitem>name</subitem></idxterm>
-                    
+
                     As you can see, the <tt><b>glossary</b></tt> is split into <tt><b>glsections</b></tt>.
                 Typically, there will be a separate section for each letter of your alphabet, and the
                 <tt><b>name</b></tt> of a section would be the letter that it represents. Each section
@@ -237,13 +237,13 @@ For more information on DocBook, please refer to <cite idref="bib:WALSH03"/>.
 </p>
 ...
                     ]]></code>
-                </listing>            
+                </listing>
                 <p>
                     The document pre-processor will replace each occurence of the <tt><b>cite</b></tt> element
                 with the label of the corresponding entry set in square brackets. For example, to refer to the
                 first entry in the listing above, you would write <tt><![CDATA[<cite idref="bib:KOCH09"/>]]></tt>,
                 which the document pre-processor would replace with <tt>[1]</tt> when numbering is turned on and
-                with <tt>[KOCH09]</tt> when numbering is off. 
+                with <tt>[KOCH09]</tt> when numbering is off.
                 </p>
             </minisection>
         </section>
