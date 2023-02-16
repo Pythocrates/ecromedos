@@ -3,27 +3,27 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-import os
-import sys
+from pathlib import Path
 
 import lxml.etree as etree
 
 from ecromedos.configreader import ECMDSConfigReader
 from ecromedos.dtdresolver import ECMDSDTDResolver
 from ecromedos.error import ECMDSError
-from ecromedos.preprocessor import ECMDSPreprocessor
+from ecromedos.preprocessor import ECMDSPreprocessor, progress
 
 
 class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
-    def __init__(self, options={}):
+    def __init__(self, options=None):
         ECMDSConfigReader.__init__(self)
         ECMDSDTDResolver.__init__(self)
         ECMDSPreprocessor.__init__(self)
 
-        self.readConfig(options)
+        self.readConfig(options or {})
         self.loadPlugins()
         self.loadStylesheet()
 
+    @progress(description="Reading document...", status="DONE")
     def loadXMLDocument(self, filename):
         """Try to load XML document from @filename."""
 
@@ -50,17 +50,16 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         target_format = self.config["target_format"]
 
         try:
-            style_dir = self.config["style_dir"]
+            style_dir = Path(self.config["style_dir"])
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
 
-        filename = os.path.join(style_dir, target_format, "ecmds.xsl")
+        file_path = style_dir / target_format / "ecmds.xsl"
         try:
-            tree = self.loadXMLDocument(filename)
+            tree = self.loadXMLDocument(file_path, verbose=False)
         except ECMDSError as e:
-            msg = "Could not load stylesheet:\n %s" % (e.msg(),)
-            raise ECMDSError(msg)
+            raise ECMDSError(f"Could not load stylesheet:\n {e.msg()}")
 
         try:
             self.stylesheet = etree.XSLT(tree)
@@ -69,18 +68,19 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
 
         return self.stylesheet
 
+    @progress(description="Validating document...", status="VALID")
     def validateDocument(self, document):
         """Validate the given document."""
 
         try:
-            style_dir = self.config["style_dir"]
+            style_dir = Path(self.config["style_dir"])
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
 
         # load the DTD
-        dtd_filename = os.path.join(style_dir, "DTD", "ecromedos.dtd")
-        dtd = etree.DTD(dtd_filename)
+        dtd_file_path = style_dir / "DTD" / "ecromedos.dtd"
+        dtd = etree.DTD(dtd_file_path)
 
         # validate the document
         result = dtd.validate(document)
@@ -90,6 +90,7 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
 
         return result
 
+    @progress(description="Transforming document...", status="DONE")
     def applyStylesheet(self, document):
         """Apply stylesheet to document."""
 
@@ -110,35 +111,11 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
     def process(self, filename, verbose=True):
         """Convert the document stored under filename."""
 
-        def message(msg, verbose):
-            if not verbose:
-                return
-            sys.stdout.write(" * " + msg)
-            sys.stdout.write(" " * (40 - len(msg)))
-            sys.stdout.flush()
-
-        def status(status, verbose):
-            if not verbose:
-                return
-            sys.stdout.write(status + "\n")
-
-        # load document
-        message("Reading document...", verbose)
         document = self.loadXMLDocument(filename)
-        status("DONE", verbose)
 
-        # validate document
         if self.config["do_validate"]:
-            message("Validating document...", verbose)
             self.validateDocument(document)
-            status("VALID", verbose)
 
-        # prepare document
-        message("Pre-processing document tree...", verbose)
         self.prepareDocument(document)
-        status("DONE", verbose)
 
-        # apply stylesheet
-        message("Transforming document...", verbose)
-        self.applyStylesheet(document)
-        status("DONE", verbose)
+        self.applyStylesheet(document=document, verbose=verbose)

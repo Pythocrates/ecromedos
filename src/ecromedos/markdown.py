@@ -6,8 +6,8 @@
 import os
 import re
 
-import mistune
 from lxml import etree
+import mistune
 
 from ecromedos.configreader import ECMDSConfigReader
 from ecromedos.dtdresolver import ECMDSDTDResolver
@@ -189,7 +189,6 @@ class MarkdownConverterError(Exception):
 
 
 class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
-
     DOCUMENT_TEMPLATE = (
         """\
 <!DOCTYPE %(document_type)s SYSTEM "http://www.ecromedos.net/dtd/3.0/ecromedos.dtd">
@@ -337,7 +336,6 @@ class MarkdownConverter(ECMDSDTDResolver, ECMDSConfigReader):
         pass
 
     def post_process(self, root_node):
-
         node = root_node
 
         while node is not None:

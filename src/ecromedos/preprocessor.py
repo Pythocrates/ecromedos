@@ -10,6 +10,22 @@ import sys
 from ecromedos.error import ECMDSError, ECMDSPluginError
 
 
+def progress(description, status):
+    def inner(func):
+        def wrapper(*args, verbose=True, **kwargs):
+            if verbose:
+                print(f" * {description}{' ' * (40 - len(description))}", end="")
+            result = func(*args, **kwargs)
+            if verbose:
+                print(status)
+
+            return result
+
+        return wrapper
+
+    return inner
+
+
 class ECMDSPreprocessor:
     def __init__(self):
         self.plugins = {}
@@ -60,6 +76,7 @@ class ECMDSPreprocessor:
                 sys.stderr.write(msg + "\n")
                 continue
 
+    @progress(description="Preprocessing document tree...", status="DONE")
     def prepareDocument(self, document):
         """Prepare document tree for transformation."""
 

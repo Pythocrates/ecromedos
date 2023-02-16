@@ -3,10 +3,10 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-import os
+from importlib.resources import files
+from pathlib import Path
 import re
 import sys
-from importlib.resources import files
 
 from ecromedos.error import ECMDSConfigError
 
@@ -24,18 +24,18 @@ class ECMDSConfigReader:
 
         return self.config, self.pmap
 
-    def readConfigFile(self, options={}):
+    def readConfigFile(self, options=None):
         """Read config file and merge with user supplied options."""
-
+        options = options or {}
         cfile = None
 
         # path to config file
         if "config_file" in options:
-            cfile = os.path.normpath(options["config_file"])
+            cfile = Path(options["config_file"]).absolute()
         else:
-            cfile = str(files("ecromedos").joinpath("defaults/ecmds.conf"))
+            cfile = Path(str(files("ecromedos").joinpath("defaults/ecmds.conf")))
 
-        if not (cfile and os.path.isfile(cfile)):
+        if not (cfile and cfile.exists()):
             msg = "Please specify the location of the config file."
             raise ECMDSConfigError(msg)
 
@@ -79,11 +79,11 @@ class ECMDSConfigReader:
 
         # path to config file
         if "plugins_map" in self.config:
-            cfile = os.path.normpath(self.config["plugins_map"])
+            cfile = Path(self.config["plugins_map"])
         else:
-            cfile = str(files("ecromedos").joinpath("defaults/plugins.conf"))
+            cfile = Path(str(files("ecromedos").joinpath("defaults/plugins.conf")))
 
-        if not (cfile and os.path.isfile(cfile)):
+        if not (cfile and cfile.exists()):
             sys.stderr.write("Warning: plugins map not found..\n")
             return False
 

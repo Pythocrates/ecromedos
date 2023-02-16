@@ -8,7 +8,7 @@ class ECMDSError(Exception):
     """Generic base class."""
 
     def __init__(self, value):
-        self.value = value
+        self._value = value
 
     def repr(self, arg):
         if isinstance(arg, str):
@@ -17,10 +17,10 @@ class ECMDSError(Exception):
             return repr(arg)
 
     def __str__(self):
-        return self.repr(self.value)
+        return self.repr(self._value)
 
     def msg(self):
-        return self.__str__()
+        return str(self)
 
 
 class ECMDSConfigError(ECMDSError):
@@ -29,8 +29,5 @@ class ECMDSConfigError(ECMDSError):
 
 class ECMDSPluginError(ECMDSError):
     def __init__(self, value, plugin_name):
-        ECMDSError.__init__(self, value)
-        self.plugin_name = plugin_name
-
-    def pluginName(self):
-        return self.repr(self.plugin_name)
+        super().__init__(value)
+        self._plugin_name = plugin_name

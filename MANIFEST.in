@@ -1,0 +1,6 @@
+global-include *.conf
+global-include *.dtd
+global-include *.gif
+global-include *.svg
+global-include *.xml
+global-include *.xsl
