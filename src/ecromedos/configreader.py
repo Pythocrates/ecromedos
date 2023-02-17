@@ -12,17 +12,13 @@ from ecromedos.error import ECMDSConfigError
 
 
 class ECMDSConfigReader:
-    def __init__(self):
-        self.config = None
-        self.pmap = {}
-
     def readConfig(self, options):
         """Read configuration files."""
 
-        self.readConfigFile(options)
-        self.readPluginsMap()
+        configuration = self.readConfigFile(options)
+        plugin_map = self.readPluginsMap(configuration=configuration)
 
-        return self.config, self.pmap
+        return configuration, plugin_map
 
     def readConfigFile(self, options=None):
         """Read config file and merge with user supplied options."""
@@ -50,7 +46,7 @@ class ECMDSConfigReader:
                 for line in fp:
                     line = line.strip()
                     if line and not line.startswith("#"):
-                        key, value = self.__processConfigLine(line, lineno)
+                        key, value = self._processConfigLine(line, lineno)
                         config[key] = value
                     lineno += 1
         except Exception:
@@ -62,24 +58,24 @@ class ECMDSConfigReader:
             config[key] = value
 
         # expand variables
-        self.config = self.__replaceVariables(config)
+        config = self._replaceVariables(config)
 
         # init lib path
-        self.__initLibPath()
+        self._initLibPath(configuration=config)
 
-        return self.config
+        return config
 
-    def readPluginsMap(self):
+    def readPluginsMap(self, configuration):
         """Read plugins map."""
 
-        if not self.config:
-            self.readConfigFile()
+        if not configuration:
+            configuration = self.readConfigFile()
 
         cfile = None
 
         # path to config file
-        if "plugins_map" in self.config:
-            cfile = Path(self.config["plugins_map"])
+        if "plugins_map" in configuration:
+            cfile = Path(configuration["plugins_map"])
         else:
             cfile = Path(str(files("ecromedos").joinpath("defaults/plugins.conf")))
 
@@ -87,7 +83,7 @@ class ECMDSConfigReader:
             sys.stderr.write("Warning: plugins map not found..\n")
             return False
 
-        pmap = {}
+        plugins_map = {}
 
         # open file
         try:
@@ -96,18 +92,17 @@ class ECMDSConfigReader:
                 for line in fp:
                     line = line.strip()
                     if line and not line.startswith("#"):
-                        key, value = self.__processPluginsMapLine(line, lineno)
-                        pmap[key] = value
+                        key, value = self._processPluginsMapLine(line, lineno)
+                        plugins_map[key] = value
                     lineno += 1
         except Exception:
-            msg = "Error processing plugins map file '%s'." % (pmap,)
-            raise ECMDSConfigError(msg)
+            raise ECMDSConfigError(f"Error processing plugins map file {cfile}.")
 
-        self.pmap = pmap
+        return plugins_map
 
     # PRIVATE
 
-    def __processConfigLine(self, line, lineno):
+    def _processConfigLine(self, line, lineno):
         """Extract key, value from line."""
 
         try:
@@ -118,7 +113,7 @@ class ECMDSConfigReader:
 
         return key, value
 
-    def __processPluginsMapLine(self, line, lineno):
+    def _processPluginsMapLine(self, line, lineno):
         """extract node name and plugins list from line."""
 
         try:
@@ -131,7 +126,7 @@ class ECMDSConfigReader:
 
         return nname, plugins
 
-    def __replaceVariables(self, config):
+    def _replaceVariables(self, config):
         """Replace variables in config file definitions."""
 
         # if there is nothing, do nothing
@@ -160,11 +155,11 @@ class ECMDSConfigReader:
 
         return config
 
-    def __initLibPath(self):
+    def _initLibPath(self, configuration):
         """Initialize library path."""
 
         try:
-            lib_dir = self.config["lib_dir"]
+            lib_dir = configuration["lib_dir"]
         except KeyError:
             return
 

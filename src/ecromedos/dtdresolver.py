@@ -11,10 +11,13 @@ from ecromedos.error import ECMDSError
 
 
 class ECMDSDTDResolver(etree.Resolver):
-    def resolve(self, url, system_id, context):
+    def __init__(self, configuration):
+        super().__init__()
+        self._configuration = configuration
 
+    def resolve(self, url, system_id, context):
         try:
-            style_dir = self.config["style_dir"]
+            style_dir = self._configuration["style_dir"]
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)

@@ -27,14 +27,16 @@ def progress(description, status):
 
 
 class ECMDSPreprocessor:
-    def __init__(self):
+    def __init__(self, configuration, plugin_map):
+        self._configuration = configuration
+        self._plugin_map = plugin_map
         self.plugins = {}
 
     def loadPlugins(self):
         """Import everything from the plugin directory."""
 
         try:
-            plugin_dir = self.config["plugin_dir"]
+            plugin_dir = self._configuration["plugin_dir"]
         except KeyError:
             msg = "No plugins directory specified. Not loading plugins."
             sys.stderr.write(msg)
@@ -65,7 +67,7 @@ class ECMDSPreprocessor:
                     if fp:
                         fp.close()
                 # got'cha
-                self.plugins[name] = module.getInstance(self.config)
+                self.plugins[name] = module.getInstance(self._configuration)
             except AttributeError:
                 msg = "Warning: '%s' is not a plugin." % (name,)
                 sys.stderr.write(msg + "\n")
@@ -80,7 +82,7 @@ class ECMDSPreprocessor:
     def prepareDocument(self, document):
         """Prepare document tree for transformation."""
 
-        target_format = self.config["target_format"]
+        target_format = self._configuration["target_format"]
         node = document.getroot()
 
         while node is not None:
@@ -121,9 +123,9 @@ class ECMDSPreprocessor:
         """Check if there is a filter registered for node."""
 
         if isinstance(node, str):
-            plist = self.pmap.get("@text", [])
+            plist = self._plugin_map.get("@text", [])
         else:
-            plist = self.pmap.get(node.tag, [])
+            plist = self._plugin_map.get(node.tag, [])
 
         # pass node through plugins
         for pname in plist:

@@ -13,14 +13,13 @@ from ecromedos.error import ECMDSError
 from ecromedos.preprocessor import ECMDSPreprocessor, progress
 
 
-class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
+class ECMLProcessor:
     def __init__(self, options=None):
-        ECMDSConfigReader.__init__(self)
-        ECMDSDTDResolver.__init__(self)
-        ECMDSPreprocessor.__init__(self)
 
-        self.readConfig(options or {})
-        self.loadPlugins()
+        self._config, plugin_map = ECMDSConfigReader().readConfig(options or {})
+        self._resolver = ECMDSDTDResolver(configuration=self._config)
+        self._preprocessor = ECMDSPreprocessor(configuration=self._config, plugin_map=plugin_map)
+        self._preprocessor.loadPlugins()
         self.loadStylesheet()
 
     @progress(description="Reading document...", status="DONE")
@@ -28,15 +27,12 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         """Try to load XML document from @filename."""
 
         try:
-            # create parser
             parser = etree.XMLParser(
                 load_dtd=True, no_network=True, strip_cdata=True, remove_comments=True, resolve_entities=True
             )
 
-            # register custom resolver
-            parser.resolvers.add(self)
+            parser.resolvers.add(self._resolver)
 
-            # parse the document
             tree = etree.parse(filename, parser=parser)
         except Exception as e:
             raise ECMDSError(str(e))
@@ -47,10 +43,10 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
     def loadStylesheet(self):
         """Load matching stylesheet for desired output format."""
 
-        target_format = self.config["target_format"]
+        target_format = self._config["target_format"]
 
         try:
-            style_dir = Path(self.config["style_dir"])
+            style_dir = Path(self._config["style_dir"])
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
@@ -73,7 +69,7 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
         """Validate the given document."""
 
         try:
-            style_dir = Path(self.config["style_dir"])
+            style_dir = Path(self._config["style_dir"])
         except KeyError:
             msg = "Please specify the location of the stylesheets."
             raise ECMDSError(msg)
@@ -96,7 +92,7 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
 
         params = None
         try:
-            params = self.config["xsl_params"]
+            params = self._config["xsl_params"]
         except KeyError:
             pass
 
@@ -113,9 +109,9 @@ class ECMLProcessor(ECMDSConfigReader, ECMDSDTDResolver, ECMDSPreprocessor):
 
         document = self.loadXMLDocument(filename)
 
-        if self.config["do_validate"]:
+        if self._config["do_validate"]:
             self.validateDocument(document)
 
-        self.prepareDocument(document)
+        self._preprocessor.prepareDocument(document)
 
         self.applyStylesheet(document=document, verbose=verbose)
