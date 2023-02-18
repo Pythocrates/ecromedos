@@ -1,21 +1,25 @@
+# PYTHON_ARGCOMPLETE_OK
 # Desc:    This file is part of the ecromedos Document Preparation System
 # Author:  Tobias Koch <tobias@tobijk.de>
 # License: MIT
 # URL:     http://www.ecromedos.net
 
+from argparse import ArgumentError
 import getopt
 import os
 import sys
 import tempfile
-from importlib.resources import files
+
+from argcomplete import autocomplete
+from ecromedos.argumentparser import ECMDSArgumentParser
+from ecromedos.configreader import ECMDSConfigReader
+from ecromedos.dtdresolver import ECMDSDTDResolver
+from ecromedos.preprocessor import ECMDSPreprocessor
 
 import ecromedos.templates as document_templates
 from ecromedos.ecmlprocessor import ECMLProcessor
 from ecromedos.error import ECMDSError
-from ecromedos.version import VERSION
 
-# make ecromedos relocatable
-ECMDS_INSTALL_DIR = str(files("ecromedos"))
 
 # exit values
 ECMDS_ERR_INVOCATION = 1
@@ -23,40 +27,7 @@ ECMDS_ERR_PROCESSING = 2
 ECMDS_ERR_UNKNOWN = 3
 
 
-def printVersion():
-    """Display version information."""
-
-    print("ecromedos Document Processor, version %s" % VERSION)
-    print("Copyright (C) 2005-2016, Tobias Koch <tobias@tobijk.de>                      ")
-
-
-def printUsage():
-    """Display usage information."""
-
-    print("                                                                             ")
-    print("Usage: ecromedos [OPTIONS] <sourcefile>                                      ")
-    print("                                                                             ")
-    print("Options:                                                                     ")
-    print("                                                                             ")
-    print(" --help, -h            Display this help text and exit.                      ")
-    print(" --basedir, -b <dir>   Use an alternative base directory from where to look  ")
-    print("                       up the transformation rules.                          ")
-    print(" --config, -c <file>   Use an alternative configuration file.                ")
-    print(" --format, -f <format> Generate the specified output format                  ")
-    print("                       (xhtml, latex, pdflatex or xelatex).                  ")
-    print(" --new, -n <doctype>   Start a new document of given doctype                 ")
-    print("                       (article, book or report).                            ")
-    print(" --style, -s <file>    Use an alternative style definition file.             ")
-    print(" --version, -v         Print version information and exit.                   ")
-    print("                                                                             ")
-    print(" --draft               Don't generate glossary or keyword indexes, which can ")
-    print("                       save substantial amounts of time.                     ")
-    print(" --finedtp             Activate pedantic typesetting, this can result in     ")
-    print("                       overful horizontal boxes.                             ")
-    print(" --nohyperref          Disable active links in PDF output.                   ")
-    print(" --novalid             Skip validation of the document.                      ")
-
-
+# FIXME: Delete this
 def parseCmdLine():
     """Parse and extract arguments of command line options."""
 
@@ -127,47 +98,72 @@ def parseCmdLine():
     return options, args
 
 
-def startDoc(doctype):
-    """Outputs a template for a new document of "doctype" to stdout."""
+def print_document_template(document_type):
+    """Outputs a template for a new document of @document_type to stdout."""
 
-    if not hasattr(document_templates, doctype):
-        msg = "No template available for doctype '" + doctype + "'."
-        raise ECMDSError(msg)
+    try:
+        template = getattr(document_templates, document_type)
+    except KeyError:
+        raise ECMDSError(f"No template available for doctype {document_type}.")
     else:
-        template = document_templates.__dict__[doctype]
-
-    sys.stdout.write(template)
-    sys.stdout.flush()
+        print(template)
 
 
 def main():
+    autocomplete(parser := ECMDSArgumentParser(exit_on_error=False))
     try:
-        # SETUP
-        try:
-            options, files = parseCmdLine()
-            if len(files) < 1:
-                msg = "ecromedos: no source file specified"
-                raise ECMDSError(msg)
-            if not os.path.isfile(files[0]):
-                msg = "ecromedos: '%s' doesn't exist or is not a file" % files[0]
-                raise ECMDSError(msg)
-        except ECMDSError as e:
-            sys.stderr.write(e.msg() + "\n")
-            sys.exit(ECMDS_ERR_INVOCATION)
+        args = parser.parse_args()
+    except ArgumentError as ae:
+        print(f"ecromedos: {ae}", file=sys.stderr)
+        sys.exit(ECMDS_ERR_INVOCATION)
 
-        # TRANSFORMATION
+    print(args)
+
+    params = {}
+    if args.draft:
+        params["global.draft"] = "'yes'"
+    if args.finedtp:
+        params["global.lazydtp"] = "'no'"
+    if not args.hyperref:
+        params["global.hyperref"] = "'no'"
+    if args.style:
+        params["global.stylesheet"] = f"document('{args.style.absolute()}')"
+
+    if args.new:
+        print_document_template(args.new)
+        sys.exit(0)
+
+    elif not (args.source_file.exists() and args.source_file.is_file()):
+        print(f"ecromedos: {args.source_file} doesn't exist or is not a file", file=sys.stderr)
+        sys.exit(ECMDS_ERR_INVOCATION)
+
+    else:
         try:
             with tempfile.TemporaryDirectory(prefix="ecmds-") as tmp_dir:
                 # MAKE THE PROCESSOR USE THE TMPDIR CONTEXT
-                options["tmp_dir"] = tmp_dir
+                # options["tmp_dir"] = tmp_dir
 
                 # SET INSTALLATION PATH
-                options.setdefault("install_dir", ECMDS_INSTALL_DIR)
+                # options.setdefault("install_dir", ECMDS_INSTALL_DIR)
 
-                # DO DOCUMENT TRANSFORMATION
-                ECMLProcessor(options).process(files[0])
+                configuration, plugins_map = ECMDSConfigReader().readConfig(
+                    config_file_path=args.config,
+                    target_format=args.format,
+                    validation_enabled=args.validate,
+                    tmp_dir=tmp_dir,
+                )
+                resolver = ECMDSDTDResolver(configuration=configuration)
+                preprocessor = ECMDSPreprocessor(configuration=configuration, plugins_map=plugins_map)
+                ECMLProcessor(
+                    resolver=resolver,
+                    preprocessor=preprocessor,
+                    target_format=configuration["target_format"],
+                    style_dir=configuration["style_dir"],
+                ).process(
+                    args.source_file, validation_enabled=configuration["validation_enabled"], xsl_parameters=params
+                )
         except ECMDSError as e:
             sys.stderr.write(e.msg() + "\n")
             sys.exit(ECMDS_ERR_PROCESSING)
-    except KeyboardInterrupt:
-        sys.stdout.write("\n -> Caught SIGINT, terminating.\n")
+        except KeyboardInterrupt:
+            sys.stdout.write("\n -> Caught SIGINT, terminating.\n")

@@ -27,9 +27,9 @@ def progress(description, status):
 
 
 class ECMDSPreprocessor:
-    def __init__(self, configuration, plugin_map):
+    def __init__(self, configuration, plugins_map):
         self._configuration = configuration
-        self._plugin_map = plugin_map
+        self._plugins_map = plugins_map
         self.plugins = {}
 
     def loadPlugins(self):
@@ -44,6 +44,7 @@ class ECMDSPreprocessor:
 
         def genList():
             filelist = []
+            print(plugin_dir)
             for filename in os.listdir(plugin_dir):
                 abspath = os.path.join(plugin_dir, filename)
                 if os.path.isfile(abspath) and not os.path.islink(abspath):
@@ -76,6 +77,7 @@ class ECMDSPreprocessor:
                 msg = "Warning: could not load module '%s': " % (name,)
                 msg += str(e) + "\n"
                 sys.stderr.write(msg + "\n")
+                raise
                 continue
 
     @progress(description="Preprocessing document tree...", status="DONE")
@@ -123,9 +125,9 @@ class ECMDSPreprocessor:
         """Check if there is a filter registered for node."""
 
         if isinstance(node, str):
-            plist = self._plugin_map.get("@text", [])
+            plist = self._plugins_map.get("@text", [])
         else:
-            plist = self._plugin_map.get(node.tag, [])
+            plist = self._plugins_map.get(node.tag, [])
 
         # pass node through plugins
         for pname in plist:

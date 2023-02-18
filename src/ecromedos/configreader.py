@@ -8,160 +8,110 @@ from pathlib import Path
 import re
 import sys
 
+from ecromedos.argumentparser import ECMDS_INSTALL_DIR, GeneratorType
 from ecromedos.error import ECMDSConfigError
 
 
 class ECMDSConfigReader:
-    def readConfig(self, options):
+    def readConfig(self, config_file_path, target_format, validation_enabled, tmp_dir):
         """Read configuration files."""
 
-        configuration = self.readConfigFile(options)
-        plugin_map = self.readPluginsMap(configuration=configuration)
+        configuration = self._read_configuration_file(config_file_path, target_format, validation_enabled, tmp_dir)
+        plugin_map = self._read_plugins_map(configuration=configuration)
+        self._initialize_library_path(configuration=configuration)
 
         return configuration, plugin_map
 
-    def readConfigFile(self, options=None):
+    @classmethod
+    def _read_configuration_file(cls, config_file_path, target_format, validation_enabled, tmp_dir):
         """Read config file and merge with user supplied options."""
-        options = options or {}
-        cfile = None
+        if not config_file_path.exists():
+            raise ECMDSConfigError(f"Failed to find the configuration file {config_file_path}.")
 
-        # path to config file
-        if "config_file" in options:
-            cfile = Path(options["config_file"]).absolute()
-        else:
-            cfile = Path(str(files("ecromedos").joinpath("defaults/ecmds.conf")))
+        configuration = {
+            "tmp_dir": tmp_dir,
+            "target_format": GeneratorType.XHTML,
+            "validation_enabled": True,
+            "install_dir": ECMDS_INSTALL_DIR,
+        }
 
-        if not (cfile and cfile.exists()):
-            msg = "Please specify the location of the config file."
-            raise ECMDSConfigError(msg)
-
-        # some hard-coded defaults
-        config = {"target_format": "xhtml", "do_validate": True}
-
-        # open file
         try:
-            with open(cfile, "rt", encoding="utf-8") as fp:
-                # parse the file
-                lineno = 1
-                for line in fp:
+            with open(config_file_path, "rt", encoding="utf-8") as fp:
+                for lineno, line in enumerate(fp, start=1):
                     line = line.strip()
                     if line and not line.startswith("#"):
-                        key, value = self._processConfigLine(line, lineno)
-                        config[key] = value
-                    lineno += 1
+                        try:
+                            key, value = [entry.strip() for entry in line.split("=", 1)]
+                        except TypeError:
+                            raise ECMDSConfigError(f"Formatting error in config file on line {lineno}.")
+                        else:
+                            configuration[key] = value
         except Exception:
-            msg = "Error processing config file '%s'." % (cfile,)
-            raise ECMDSConfigError(msg)
+            raise ECMDSConfigError(f"Failed to process the configuration file {config_file_path}.")
 
-        # merge user supplied parameters
-        for key, value in list(options.items()):
-            config[key] = value
+        # Merge user-supplied parameters.
+        if target_format is not None:
+            configuration["target_format"] = target_format
+        if validation_enabled is not None:
+            configuration["validation_enabled"] = validation_enabled
+        #    config[key] = value
 
-        # expand variables
-        config = self._replaceVariables(config)
+        # Expand variables.
+        return cls._replace_variables(configuration)
 
-        # init lib path
-        self._initLibPath(configuration=config)
-
-        return config
-
-    def readPluginsMap(self, configuration):
+    @staticmethod
+    def _read_plugins_map(configuration):
         """Read plugins map."""
 
-        if not configuration:
-            configuration = self.readConfigFile()
+        config_file_path = Path(str(files("ecromedos"))) / "defaults" / "plugins.conf"
 
-        cfile = None
-
-        # path to config file
-        if "plugins_map" in configuration:
-            cfile = Path(configuration["plugins_map"])
-        else:
-            cfile = Path(str(files("ecromedos").joinpath("defaults/plugins.conf")))
-
-        if not (cfile and cfile.exists()):
-            sys.stderr.write("Warning: plugins map not found..\n")
-            return False
+        if not config_file_path.exists():
+            raise ECMDSConfigError(f"Failed to find the plugins file {config_file_path}.")
 
         plugins_map = {}
 
-        # open file
         try:
-            with open(cfile, "rt", encoding="utf-8") as fp:
-                lineno = 1
-                for line in fp:
+            with open(config_file_path, "rt", encoding="utf-8") as fp:
+                for lineno, line in enumerate(fp, start=1):
                     line = line.strip()
                     if line and not line.startswith("#"):
-                        key, value = self._processPluginsMapLine(line, lineno)
-                        plugins_map[key] = value
-                    lineno += 1
+                        try:
+                            nname, plugins = line.split(":")
+                            key = nname.strip()
+                            values = [p.strip() for p in plugins.split(",")]
+                        except Exception:
+                            raise ECMDSConfigError(f"Formatting error in plugins map on line {lineno}.")
+                        else:
+                            plugins_map[key] = values
         except Exception:
-            raise ECMDSConfigError(f"Error processing plugins map file {cfile}.")
+            raise ECMDSConfigError(f"Error processing plugins map file {config_file_path}.")
+        else:
+            return plugins_map
 
-        return plugins_map
-
-    # PRIVATE
-
-    def _processConfigLine(self, line, lineno):
-        """Extract key, value from line."""
-
-        try:
-            key, value = [entry.strip() for entry in line.split("=", 1)]
-        except Exception:
-            msg = "Formatting error in config file on line %d" % (lineno,)
-            raise ECMDSConfigError(msg)
-
-        return key, value
-
-    def _processPluginsMapLine(self, line, lineno):
-        """extract node name and plugins list from line."""
-
-        try:
-            nname, plugins = line.split(":")
-            nname = nname.strip()
-            plugins = [p.strip() for p in plugins.split(",")]
-        except Exception:
-            msg = "Formatting error in plugins map on line %d" % (lineno,)
-            raise ECMDSConfigError(msg)
-
-        return nname, plugins
-
-    def _replaceVariables(self, config):
+    @staticmethod
+    def _replace_variables(configuration):
         """Replace variables in config file definitions."""
 
-        # if there is nothing, do nothing
-        if not config:
-            return config
-
         # create rexpr $param1|param2|...
-        expr = "|".join([r"\$" + re.escape(key) for key in list(config.keys())])
+        expr = "|".join([r"\$" + re.escape(key) for key in list(configuration.keys())])
         rexpr = re.compile(expr)
 
         def sub(match):
-            return config[match.group()[1:]]
+            return str(configuration[match.group()[1:]])
 
-        while True:
-            # continue until there are no more substitutions
-            subst_performed = False
+        substitution_performed = True
+        while substitution_performed:
+            substitution_performed = False
 
-            for key, value in list(config.items()):
-                if type(value) == str:
-                    config[key] = rexpr.sub(sub, value)
-                    if value != config[key]:
-                        subst_performed = True
+            for key, value in configuration.items():
+                if isinstance(value, str):
+                    configuration[key] = rexpr.sub(sub, value)
+                    if value != configuration[key]:
+                        substitution_performed = True
 
-            if not subst_performed:
-                break
+        return configuration
 
-        return config
-
-    def _initLibPath(self, configuration):
-        """Initialize library path."""
-
-        try:
-            lib_dir = configuration["lib_dir"]
-        except KeyError:
-            return
-
-        if lib_dir not in sys.path:
+    @staticmethod
+    def _initialize_library_path(configuration):
+        if (lib_dir := configuration.get("lib_dir")) and lib_dir not in sys.path:
             sys.path.insert(1, lib_dir)

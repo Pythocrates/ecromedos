@@ -4,6 +4,7 @@
 # URL:     http://www.ecromedos.net
 
 import os
+from pathlib import Path
 import re
 import shutil
 import subprocess
@@ -26,18 +27,16 @@ class Plugin:
 
         # look for conversion tool
         try:
-            self.convert_bin = ""
             self.convert_bin = config["convert_bin"]
         except KeyError:
             msg = "Location of the 'convert' executable not specified."
             raise ECMDSPluginError(msg, "picture")
-        if not os.path.isfile(self.convert_bin):
+        if not Path(self.convert_bin).is_file():
             msg = "Could not find 'convert' executable '%s'." % (self.convert_bin,)
             raise ECMDSPluginError(msg, "picture")
 
         # look for identify tool
         try:
-            self.identify_bin = ""
             self.identify_bin = config["identify_bin"]
         except KeyError:
             msg = "Location of the 'identify' executable not specified."

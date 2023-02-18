@@ -7,23 +7,20 @@ from pathlib import Path
 
 import lxml.etree as etree
 
-from ecromedos.configreader import ECMDSConfigReader
-from ecromedos.dtdresolver import ECMDSDTDResolver
 from ecromedos.error import ECMDSError
-from ecromedos.preprocessor import ECMDSPreprocessor, progress
+from ecromedos.preprocessor import progress
 
 
 class ECMLProcessor:
-    def __init__(self, options=None):
-
-        self._config, plugin_map = ECMDSConfigReader().readConfig(options or {})
-        self._resolver = ECMDSDTDResolver(configuration=self._config)
-        self._preprocessor = ECMDSPreprocessor(configuration=self._config, plugin_map=plugin_map)
+    def __init__(self, resolver, preprocessor, target_format, style_dir):
+        self._resolver = resolver
+        self._preprocessor = preprocessor
         self._preprocessor.loadPlugins()
-        self.loadStylesheet()
+        self._stylesheet = self._load_stylesheet(target_format=target_format, style_dir=style_dir)
+        self._style_dir = style_dir
 
     @progress(description="Reading document...", status="DONE")
-    def loadXMLDocument(self, filename):
+    def _load_xml_document(self, filename):
         """Try to load XML document from @filename."""
 
         try:
@@ -33,85 +30,55 @@ class ECMLProcessor:
 
             parser.resolvers.add(self._resolver)
 
-            tree = etree.parse(filename, parser=parser)
+            return etree.parse(filename, parser=parser)
         except Exception as e:
             raise ECMDSError(str(e))
 
-        # return document tree
-        return tree
-
-    def loadStylesheet(self):
+    def _load_stylesheet(self, target_format, style_dir):
         """Load matching stylesheet for desired output format."""
 
-        target_format = self._config["target_format"]
-
+        file_path = Path(style_dir) / target_format / "ecmds.xsl"
         try:
-            style_dir = Path(self._config["style_dir"])
-        except KeyError:
-            msg = "Please specify the location of the stylesheets."
-            raise ECMDSError(msg)
-
-        file_path = style_dir / target_format / "ecmds.xsl"
-        try:
-            tree = self.loadXMLDocument(file_path, verbose=False)
+            tree = self._load_xml_document(file_path, verbose=False)
         except ECMDSError as e:
             raise ECMDSError(f"Could not load stylesheet:\n {e.msg()}")
 
         try:
-            self.stylesheet = etree.XSLT(tree)
+            return etree.XSLT(tree)
         except Exception as e:
             raise ECMDSError(str(e))
 
-        return self.stylesheet
-
     @progress(description="Validating document...", status="VALID")
-    def validateDocument(self, document):
+    def _validate_document(self, document):
         """Validate the given document."""
 
-        try:
-            style_dir = Path(self._config["style_dir"])
-        except KeyError:
-            msg = "Please specify the location of the stylesheets."
-            raise ECMDSError(msg)
-
-        # load the DTD
-        dtd_file_path = style_dir / "DTD" / "ecromedos.dtd"
+        dtd_file_path = Path(self._style_dir) / "DTD" / "ecromedos.dtd"
         dtd = etree.DTD(dtd_file_path)
 
-        # validate the document
         result = dtd.validate(document)
 
         if not result:
             raise ECMDSError(dtd.error_log.last_error)
-
-        return result
+        else:
+            return result
 
     @progress(description="Transforming document...", status="DONE")
-    def applyStylesheet(self, document):
+    def applyStylesheet(self, document, xsl_parameters):
         """Apply stylesheet to document."""
 
-        params = None
         try:
-            params = self._config["xsl_params"]
-        except KeyError:
-            pass
-
-        try:
-            result = self.stylesheet(document, **params)
+            return self._stylesheet(document, **xsl_parameters)
         except Exception as e:
-            msg = "Error transforming document:\n %s." % (str(e),)
-            raise ECMDSError(msg)
+            raise ECMDSError(f"Error transforming document:\n {e}.")
 
-        return result
-
-    def process(self, filename, verbose=True):
+    def process(self, filename, validation_enabled, xsl_parameters, verbose=True):
         """Convert the document stored under filename."""
 
-        document = self.loadXMLDocument(filename)
+        document = self._load_xml_document(filename)
 
-        if self._config["do_validate"]:
-            self.validateDocument(document)
+        if validation_enabled:
+            self._validate_document(document)
 
         self._preprocessor.prepareDocument(document)
 
-        self.applyStylesheet(document=document, verbose=verbose)
+        self.applyStylesheet(document=document, xsl_parameters=xsl_parameters, verbose=verbose)
