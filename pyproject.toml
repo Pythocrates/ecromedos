@@ -1,7 +1,13 @@
 [project]
 name = "ecromedos"
 version = "3.0.1"
-dependencies = ["lxml", "mistune", "pygments", "pygments-style-github"]
+dependencies = [
+  "argcomplete",
+  "lxml",
+  "mistune",
+  "pygments",
+  "pygments-style-github",
+]
 
 [project.scripts]
 ecromedos = "ecromedos.ecromedos:main"

@@ -3,92 +3,66 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-import imp
-import os
+from importlib.util import LazyLoader, module_from_spec, spec_from_file_location
+from pathlib import Path
 import sys
 
-from ecromedos.error import ECMDSError, ECMDSPluginError
-
-
-def progress(description, status):
-    def inner(func):
-        def wrapper(*args, verbose=True, **kwargs):
-            if verbose:
-                print(f" * {description}{' ' * (40 - len(description))}", end="")
-            result = func(*args, **kwargs)
-            if verbose:
-                print(status)
-
-            return result
-
-        return wrapper
-
-    return inner
+from ecromedos.error import ECMDSError
+from ecromedos.helpers import progress
 
 
 class ECMDSPreprocessor:
     def __init__(self, configuration, plugins_map):
         self._configuration = configuration
         self._plugins_map = plugins_map
-        self.plugins = {}
+        self._plugins = self._load_plugins()
 
-    def loadPlugins(self):
+    def _iter_plugin_paths(self):
+        try:
+            plugin_dir = Path(self._configuration["plugin_dir"])
+        except KeyError:
+            print("No plugins directory specified. Not loading plugins.", file=sys.stderr)
+        else:
+            try:
+                for file_path in plugin_dir.iterdir():
+                    abspath = file_path.absolute()
+                    if abspath.is_file() and not abspath.is_symlink() and file_path.suffix == ".py":
+                        yield file_path
+            except IOError:
+                raise ECMDSError(f"IO-error while scanning plugins directory {plugin_dir}.")
+
+    def _load_plugins(self):
         """Import everything from the plugin directory."""
 
-        try:
-            plugin_dir = self._configuration["plugin_dir"]
-        except KeyError:
-            msg = "No plugins directory specified. Not loading plugins."
-            sys.stderr.write(msg)
-            return
-
-        def genList():
-            filelist = []
-            print(plugin_dir)
-            for filename in os.listdir(plugin_dir):
-                abspath = os.path.join(plugin_dir, filename)
-                if os.path.isfile(abspath) and not os.path.islink(abspath):
-                    if filename.endswith(".py"):
-                        filelist.append(filename[:-3])
-            return filelist
-
-        try:
-            plugins_list = genList()
-        except IOError:
-            msg = "IO-error while scanning plugins directory."
-            raise ECMDSError(msg)
-
-        self.plugins = {}
-        for name in plugins_list:
+        plugins = {}
+        for module_file_path in self._iter_plugin_paths():
+            module_name = module_file_path.stem
             try:
-                fp, path, desc = imp.find_module(name, [plugin_dir])
-                try:
-                    module = imp.load_module(name, fp, path, desc)
-                finally:
-                    if fp:
-                        fp.close()
-                # got'cha
-                self.plugins[name] = module.getInstance(self._configuration)
-            except AttributeError:
-                msg = "Warning: '%s' is not a plugin." % (name,)
-                sys.stderr.write(msg + "\n")
-                continue
-            except Exception as e:
-                msg = "Warning: could not load module '%s': " % (name,)
-                msg += str(e) + "\n"
-                sys.stderr.write(msg + "\n")
-                raise
-                continue
+                if (module_spec := spec_from_file_location(module_name, module_file_path)) and module_spec.loader:
+                    module_spec.loader = LazyLoader(module_spec.loader)
+                    module = module_from_spec(module_spec)
+                    sys.modules[module_name] = module
+                    module_spec.loader.exec_module(module)
+                    # got'cha
+                    plugins[module_name] = module.getInstance(self._configuration)
+                else:
+                    raise ECMDSError(f"Failed to load plugin {module_name}.")
 
-    @progress(description="Preprocessing document tree...", status="DONE")
-    def prepareDocument(self, document):
+            except AttributeError:
+                print(f"Warning: {module_name} is not a plugin.", file=sys.stderr)
+            except Exception as ex:
+                print(f"Warning: could not load module {module_name}: {ex}", file=sys.stderr)
+
+        return plugins
+
+    @progress(description="Preprocessing document tree...", final_status="DONE")
+    def prepareDocument(self, document, target_format):
         """Prepare document tree for transformation."""
 
-        target_format = self._configuration["target_format"]
         node = document.getroot()
 
         while node is not None:
-            node = self.__processNode(node, target_format)
+            node = self._process_node(node, target_format)
 
             if node.tag == "copy" or node.attrib.get("final", "no") == "yes":
                 is_final = True
@@ -96,7 +70,7 @@ class ECMDSPreprocessor:
                 is_final = False
 
             if not is_final and node.text:
-                node.text = self.__processNode(node.text, target_format)
+                node.text = self._process_node(node.text, target_format)
 
             if not is_final and len(node) != 0:
                 node = node[0]
@@ -104,7 +78,7 @@ class ECMDSPreprocessor:
 
             while node is not None:
                 if node.tail:
-                    node.tail = self.__processNode(node.tail, target_format)
+                    node.tail = self._process_node(node.tail, target_format)
 
                 following_sibling = node.getnext()
 
@@ -115,38 +89,30 @@ class ECMDSPreprocessor:
                 node = node.getparent()
 
         # call post-actions
-        self.__flushPlugins()
+        self._flush_plugins()
 
         return document
 
-    # PRIVATE
-
-    def __processNode(self, node, format):
+    def _process_node(self, node, format):
         """Check if there is a filter registered for node."""
 
-        if isinstance(node, str):
-            plist = self._plugins_map.get("@text", [])
-        else:
-            plist = self._plugins_map.get(node.tag, [])
+        plugins = self._plugins_map.get("@text" if isinstance(node, str) else node.tag, [])
 
         # pass node through plugins
-        for pname in plist:
+        for plugin_name in plugins:
             try:
-                plugin = self.plugins[pname]
+                plugin = self._plugins[plugin_name]
             except KeyError:
-                msg = "Warning: no plugin named '%s' registered." % (pname,)
-                sys.stderr.write(msg + "\n")
-            try:
-                node = plugin.process(node, format)
-            except ECMDSPluginError:
-                raise  # caught in __main__
-            except Exception as e:
-                msg = "Plugin '%s' caused an exception: %s" % (pname, str(e))
-                raise ECMDSError(msg)
+                raise ECMDSError(f"No plugin named {plugin_name} registered.")
+            else:
+                try:
+                    node = plugin.process(node, format)
+                except Exception as ex:
+                    raise ECMDSError(f"Plugin {plugin_name} caused an exception: {ex}")
 
         return node
 
-    def __flushPlugins(self):
+    def _flush_plugins(self):
         """Call flush function of all registered plugins."""
-        for pname, plugin in self.plugins.items():
+        for plugin in self._plugins.values():
             plugin.flush()

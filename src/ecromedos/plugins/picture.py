@@ -3,14 +3,14 @@
 # License: MIT
 # URL:     http://www.ecromedos.net
 
-import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import tempfile
 
+from ecromedos.argumentparser import GeneratorType
 from ecromedos.error import ECMDSPluginError
+from ecromedos.helpers import ExternalTool
 
 
 def getInstance(config):
@@ -19,45 +19,25 @@ def getInstance(config):
 
 
 class Plugin:
+    _DEFAULT_RESOLUTION_DPI = 100
+
     def __init__(self, config):
-        # set counter
-        self.counter = 1
+        self._counter = 1
         self.imgmap = {}
         self.imgwidth = {}
 
-        # look for conversion tool
-        try:
-            self.convert_bin = config["convert_bin"]
-        except KeyError:
-            msg = "Location of the 'convert' executable not specified."
-            raise ECMDSPluginError(msg, "picture")
-        if not Path(self.convert_bin).is_file():
-            msg = "Could not find 'convert' executable '%s'." % (self.convert_bin,)
-            raise ECMDSPluginError(msg, "picture")
-
-        # look for identify tool
-        try:
-            self.identify_bin = config["identify_bin"]
-        except KeyError:
-            msg = "Location of the 'identify' executable not specified."
-            raise ECMDSPluginError(msg, "picture")
-        if not os.path.isfile(self.identify_bin):
-            msg = "Could not find 'identify' executable '%s'." % (self.identify_bin,)
-            raise ECMDSPluginError(msg, "picture")
+        self._run_convert = ExternalTool(
+            "convert", "-antialias", "-density", config.get("convert_dpi", self._DEFAULT_RESOLUTION_DPI)
+        )
+        self._run_identify = ExternalTool("identify")
 
         # temporary directory
-        self.tmp_dir = config["tmp_dir"]
-
-        # conversion dpi
-        try:
-            self.convert_dpi = config["convert_dpi"]
-        except KeyError:
-            self.convert_dpi = "100"
+        self._tmp_dir = Path(config["tmp_dir"])
 
     def process(self, node, format):
         """Prepare @node for target @format."""
 
-        if format == "latex":
+        if format == GeneratorType.LATEX:
             self.LaTeX_prepareImg(node)
         elif format.endswith("latex"):
             self.LaTeX_prepareImg(node, format="pdf")
@@ -68,27 +48,27 @@ class Plugin:
 
     def flush(self):
         # reset counter
-        self.counter = 1
+        self._counter = 1
         self.imgmap = {}
         self.imgwidth = {}
 
     def LaTeX_prepareImg(self, node, format="eps"):
         # get image src path
-        src = self.__imgSrc(node)
+        src = self._get_image_source_path(node)
         dst = ""
 
         # check if we used this image before
         try:
             dst = self.imgmap[src][0]
         except KeyError:
-            dst = "img%06d.%s" % (self.counter, format)
-            self.counter += 1
+            dst = "img%06d.%s" % (self._counter, format)
+            self._counter += 1
 
-            if not src.endswith(format):
-                if src.endswith(".eps") and format == "pdf":
-                    self.__eps2pdf(src, dst)
+            if not (extension := src.suffix[1:]) == format:
+                if extension == ".eps" and format == "pdf":
+                    self._eps_to_pdf(src, dst)
                 else:
-                    self.__convertImg(src, dst)
+                    self._convert_image(src, dst)
             else:
                 shutil.copyfile(src, dst)
 
@@ -99,7 +79,7 @@ class Plugin:
 
     def XHTML_prepareImg(self, node):
         # get image src path
-        src = self.__imgSrc(node)
+        src = self._get_image_source_path(node)
         dst = ""
 
         width = node.attrib.get("screen-width", None)
@@ -107,7 +87,7 @@ class Plugin:
         if width:
             width = re.match("[1-9][0-9]*", width).group()
         else:
-            width = self.__identifyWidth(src)
+            width = self._identify_width(src)
 
         try:
             imglist = self.imgmap[src]
@@ -123,72 +103,60 @@ class Plugin:
 
         if not dst:
             # check image format
-            ext = src.strip().split(".")[-1]
+            ext = src.suffix
 
-            if ext.lower() in ["jpg", "gif", "png"]:
-                dst = "img%06d.%s" % (self.counter, ext.lower())
-                self.__convertImg(src, dst, width)
+            if ext.casefold() in ["jpg", "gif", "png"]:
+                dst = "img%06d.%s" % (self._counter, ext.lower())
+                self._convert_image(src, dst, width)
             else:
-                dst = "img%06d.jpg" % (self.counter,)
-                self.__convertImg(src, dst, width)
+                dst = "img%06d.jpg" % (self._counter,)
+                self._convert_image(src, dst, width)
 
             self.imgwidth[dst] = width
             self.imgmap.setdefault(src, []).append(dst)
-            self.counter += 1
+            self._counter += 1
 
         # set src attribute to new file
         node.attrib["src"] = dst
 
-    # PRIVATE
-
-    def __imgSrc(self, node):
+    @staticmethod
+    def _get_image_source_path(node):
         # location of image
-        src = node.attrib.get("src", "")
-
-        if not src:
-            msg = "Emtpy or missing 'src' attribute in 'img' tag "
-            msg += "on line '%d'." % node.sourceline
+        try:
+            src = Path(node.attrib["src"])
+        except KeyError:
+            msg = f"Emtpy or missing 'src' attribute in 'img' tag on line {node.sourceline}."
             raise ECMDSPluginError(msg, "picture")
 
         # if src is a relative path, prepend doc's location
-        if src and not os.path.isabs(src):
+        if not src.is_absolute():
             # get the root node
             tree = node.getroottree()
 
-            baseURL = os.path.dirname(os.path.normpath(tree.docinfo.URL))
-            src = os.path.join(baseURL, os.path.normpath(src))
+            baseURL = Path(tree.docinfo.URL).absolute().parent
+            src = baseURL.joinpath(src)
 
-        if not os.path.isfile(src):
-            msg = "Could not find bitmap file at location '%s' " % (src,)
-            msg += "as specified in 'img' tag on line '%d'." % node.sourceline
+        if not src.is_file():
+            msg = f"Could not find bitmap file at location {src} "
+            msg += f"as specified in 'img' tag on line {node.sourceline}."
             raise ECMDSPluginError(msg, "picture")
 
         return src
 
-    def __convertImg(self, src, dst, width=None):
+    def _convert_image(self, src, dst, width=None):
         # build command line
-        if width:
-            cmd = [self.convert_bin, "-antialias", "-density", self.convert_dpi, "-scale", width + "x"]
-        else:
-            cmd = [self.convert_bin, "-antialias", "-density", self.convert_dpi]
+        args = ["-scale", width + "x"] if width else []
 
         # remove alpha channel if not supported
         if not dst[-4:] in [".png", ".pdf", ".svg", ".eps"]:
-            cmd += ["-alpha", "remove"]
+            args += ["-alpha", "remove"]
 
-        # add source and destination filenames
-        cmd += [src, dst]
+        try:
+            self._run_convert(*args, src, dst)
+        except ECMDSPluginError:
+            raise ECMDSPluginError(f"Could not convert graphics file {src}.", "picture")
 
-        with open(os.devnull, "wb") as devnull:
-            proc = subprocess.Popen(cmd, stdout=devnull, stderr=devnull)
-            rval = proc.wait()
-
-        # test exit status
-        if rval != 0:
-            msg = "Could not convert graphics file '%s'." % src
-            raise ECMDSPluginError(msg, "picture")
-
-    def __eps2pdf(self, src, dst):
+    def _eps_to_pdf(self, src, dst):
 
         # look for bounding box
         rexpr = re.compile(r"(^%%BoundingBox:)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)")
@@ -199,29 +167,29 @@ class Plugin:
         try:
             # open source file and temporary output
             infile = open(src, "r", encoding="utf-8")
-            tmpfd, tmpname = tempfile.mkstemp(suffix=".eps", dir=self.tmp_dir)
-            outfile = os.fdopen(tmpfd, "w", encoding="utf-8")
+            _, tmpname = tempfile.mkstemp(suffix=".eps", dir=self._tmp_dir)
 
             # Look for bounding box and adjust
             done = False
-            for line in infile:
-                m = rexpr.match(line)
+            with open(tmpname, "w", encoding="utf-8") as outfile:
+                for line in infile:
+                    m = rexpr.match(line)
 
-                if not done and m:
-                    llx = int(m.group(2))
-                    lly = int(m.group(3))
-                    urx = int(m.group(4))
-                    ury = int(m.group(5))
-                    width, height = (urx - llx, ury - lly)
-                    xoff, yoff = (-llx, -lly)
-                    outfile.write("%%%%BoundingBox: 0 0 %d %d\n" % (width, height))
-                    outfile.write("<< /PageSize [%d %d] >> setpagedevice\n" % (width, height))
-                    outfile.write("gsave %d %d translate\n" % (xoff, yoff))
-                    done = True
-                else:
-                    outfile.write(line)
+                    if not done and m:
+                        llx = int(m.group(2))
+                        lly = int(m.group(3))
+                        urx = int(m.group(4))
+                        ury = int(m.group(5))
+                        width, height = (urx - llx, ury - lly)
+                        xoff, yoff = (-llx, -lly)
+                        outfile.write("%%%%BoundingBox: 0 0 %d %d\n" % (width, height))
+                        outfile.write("<< /PageSize [%d %d] >> setpagedevice\n" % (width, height))
+                        outfile.write("gsave %d %d translate\n" % (xoff, yoff))
+                        done = True
+                    else:
+                        outfile.write(line)
 
-            self.__convertImg(tmpname, dst)
+            self._convert_image(tmpname, dst)
         except IOError:
             msg = "Could not convert EPS file '%s'" % src
             raise ECMDSPluginError(msg, "picture")
@@ -230,32 +198,15 @@ class Plugin:
                 infile.close()
             except Exception:
                 pass
-            try:
-                outfile.close()
-            except Exception:
-                pass
 
-    def __identifyWidth(self, src):
-        cmd = [self.identify_bin, src]
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
-            result = proc.stdout.read().decode("utf-8")
-
-        # this is a bit of an interesting way to determine an error condition...
+    def _identify_width(self, src):
+        # This is a bit of an interesting way to determine an error condition...
+        result = self._run_identify(src)
         if result.startswith("identify:"):
-            msg = "Could not determine bitmap's dimensions:\n  '%s'." % (result,)
-            raise ECMDSPluginError(msg, "picture")
+            raise ECMDSPluginError(f"Could not determine bitmap's dimensions:\n  {result}.", "picture")
 
-        result = result.split()
         rexpr = re.compile("[0-9]+x[0-9]+")
-        width = None
-
-        for value in result:
-            if rexpr.match(value):
-                width = value.split("x")[0]
-                break
-
-        if not width:
-            msg = "Could not determine bitmap's dimensions:\n  '%s'." % (src,)
-            raise ECMDSPluginError(msg, "picture")
-
-        return width
+        try:
+            return next(value.split("x")[0] for value in result.split() if rexpr.match(value))
+        except StopIteration:
+            raise ECMDSPluginError(f"Could not determine bitmap's dimensions:\n  {src}", "picture")

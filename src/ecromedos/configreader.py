@@ -17,10 +17,10 @@ class ECMDSConfigReader:
         """Read configuration files."""
 
         configuration = self._read_configuration_file(config_file_path, target_format, validation_enabled, tmp_dir)
-        plugin_map = self._read_plugins_map(configuration=configuration)
+        plugins_map = self._read_plugins_map(configuration=configuration)
         self._initialize_library_path(configuration=configuration)
 
-        return configuration, plugin_map
+        return configuration, plugins_map
 
     @classmethod
     def _read_configuration_file(cls, config_file_path, target_format, validation_enabled, tmp_dir):
@@ -54,7 +54,6 @@ class ECMDSConfigReader:
             configuration["target_format"] = target_format
         if validation_enabled is not None:
             configuration["validation_enabled"] = validation_enabled
-        #    config[key] = value
 
         # Expand variables.
         return cls._replace_variables(configuration)
