@@ -1,7 +1,8 @@
 import shutil
 import subprocess
 
-from ecromedos.error import ECMDSPluginError
+from ecromedos.error import ECMDSError, ECMDSPluginError
+from ecromedos import templates
 
 
 class ExternalTool:
@@ -24,6 +25,17 @@ class ExternalTool:
             raise ECMDSPluginError(f"Failed to execute command {' '.join(str(c) for c in command)}.", "picture")
         else:
             return result
+
+
+def print_document_template(document_type):
+    """Outputs a template for a new document of @document_type to stdout."""
+
+    try:
+        template = getattr(templates, document_type)
+    except KeyError:
+        raise ECMDSError(f"No template available for doctype {document_type}.")
+    else:
+        print(template)
 
 
 def progress(description, final_status):

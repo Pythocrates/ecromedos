@@ -17,8 +17,8 @@ from ecromedos.configreader import ECMDSConfigReader
 from ecromedos.dtdresolver import ECMDSDTDResolver
 from ecromedos.ecmlprocessor import ECMLProcessor
 from ecromedos.error import ECMDSError
+from ecromedos.helpers import print_document_template
 from ecromedos.preprocessor import ECMDSPreprocessor
-import ecromedos.templates as document_templates
 
 
 # exit values
@@ -26,17 +26,6 @@ class ExitValue(IntEnum):
     ECMDS_ERR_INVOCATION = 1
     ECMDS_ERR_PROCESSING = auto()
     ECMDS_ERR_UNKNOWN = auto()
-
-
-def print_document_template(document_type):
-    """Outputs a template for a new document of @document_type to stdout."""
-
-    try:
-        template = getattr(document_templates, document_type)
-    except KeyError:
-        raise ECMDSError(f"No template available for doctype {document_type}.")
-    else:
-        print(template)
 
 
 def main():
